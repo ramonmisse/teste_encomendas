@@ -5,6 +5,8 @@ require_once '../includes/functions.php';
 
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Start transaction for data integrity
+    $pdo->beginTransaction();
     // Validate and sanitize inputs
     $id = (int)$_POST['id'];
     $name = sanitizeInput($_POST['name']);
@@ -24,9 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare("UPDATE product_models SET name = ?, image_url = ?, description = ? WHERE id = ?");
         $stmt->execute([$name, $imageUrl, $description, $id]);
         
+        // Commit transaction
+        $pdo->commit();
         // Set success message
         $_SESSION['success'] = 'Modelo atualizado com sucesso!';
     } catch (PDOException $e) {
+        // Rollback transaction
+        $pdo->rollBack();
         // Set error message
         $_SESSION['error'] = 'Erro ao atualizar modelo: ' . $e->getMessage();
     }

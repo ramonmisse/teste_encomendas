@@ -5,6 +5,8 @@ require_once '../includes/functions.php';
 
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Start transaction for data integrity
+    $pdo->beginTransaction();
     // Validate and sanitize inputs
     $salesRepId = (int)$_POST['sales_representative_id'];
     $clientName = sanitizeInput($_POST['client_name']);
@@ -29,17 +31,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Create uploads directory if it doesn't exist
         if (!file_exists($uploadDir)) {
             mkdir($uploadDir, 0777, true);
+            // Set proper permissions for the uploads directory
+            chmod($uploadDir, 0777);
         }
         
         // Process each uploaded file
         foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
             if ($_FILES['images']['error'][$key] === 0) {
-                $fileName = time() . '_' . $_FILES['images']['name'][$key];
+                $fileName = time() . '_' . basename($_FILES['images']['name'][$key]);
                 $filePath = $uploadDir . $fileName;
                 
                 // Move uploaded file to destination
                 if (move_uploaded_file($tmp_name, $filePath)) {
                     $imageUrls[] = 'uploads/' . $fileName;
+                    // Set proper permissions for the uploaded file
+                    chmod($filePath, 0644);
                 }
             }
         }
@@ -72,6 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 WHERE id = ?");
             $stmt->execute([$salesRepId, $clientName, $deliveryDate, $modelId, $metalType, $notes, $imageUrlsJson, $id]);
             
+            // Commit transaction
+            $pdo->commit();
             $_SESSION['success'] = 'Pedido atualizado com sucesso!';
         } else {
             // Insert new order
@@ -80,9 +88,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
             $stmt->execute([$salesRepId, $clientName, $deliveryDate, $modelId, $metalType, $notes, $imageUrlsJson]);
             
+            // Commit transaction
+            $pdo->commit();
             $_SESSION['success'] = 'Pedido criado com sucesso!';
         }
     } catch (PDOException $e) {
+        // Rollback transaction
+        $pdo->rollBack();
         // Set error message
         $_SESSION['error'] = 'Erro ao salvar pedido: ' . $e->getMessage();
     }

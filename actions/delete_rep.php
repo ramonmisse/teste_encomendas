@@ -5,6 +5,8 @@ require_once '../includes/functions.php';
 
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Start transaction for data integrity
+    $pdo->beginTransaction();
     // Validate and sanitize input
     $id = (int)$_POST['id'];
     
@@ -30,10 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("DELETE FROM sales_representatives WHERE id = ?");
             $stmt->execute([$id]);
             
+            // Commit transaction
+            $pdo->commit();
             // Set success message
             $_SESSION['success'] = 'Representante excluído com sucesso!';
         }
     } catch (PDOException $e) {
+        // Rollback transaction
+        $pdo->rollBack();
         // Set error message
         $_SESSION['error'] = 'Erro ao excluir representante: ' . $e->getMessage();
     }

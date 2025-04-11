@@ -5,6 +5,8 @@ require_once '../includes/functions.php';
 
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Start transaction for data integrity
+    $pdo->beginTransaction();
     // Validate and sanitize inputs
     $id = (int)$_POST['id'];
     $name = sanitizeInput($_POST['name']);
@@ -47,10 +49,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("UPDATE sales_representatives SET name = ?, email = ?, phone = ?, avatar_url = ? WHERE id = ?");
             $stmt->execute([$name, $email, $phone, $avatarUrl, $id]);
             
+            // Commit transaction
+            $pdo->commit();
             // Set success message
             $_SESSION['success'] = 'Representante atualizado com sucesso!';
         }
     } catch (PDOException $e) {
+        // Rollback transaction
+        $pdo->rollBack();
         // Set error message
         $_SESSION['error'] = 'Erro ao atualizar representante: ' . $e->getMessage();
     }
