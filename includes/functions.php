@@ -7,10 +7,15 @@
  */
 function getOrders($pdo) {
     try {
-        $stmt = $pdo->query("SELECT * FROM orders ORDER BY created_at DESC");
+        $stmt = $pdo->query("SELECT o.*, m.name as model, s.name as sales_rep 
+                           FROM orders o 
+                           JOIN product_models m ON o.model_id = m.id 
+                           JOIN sales_representatives s ON o.sales_representative_id = s.id 
+                           ORDER BY o.created_at DESC");
         return $stmt->fetchAll();
     } catch(PDOException $e) {
         // For development, show error. For production, log error and show generic message
+        error_log('Error fetching orders: ' . $e->getMessage());
         return [];
     }
 }
@@ -63,6 +68,119 @@ function getProductModels($pdo) {
 }
 
 /**
+ * Add a new product model to the database
+ * 
+ * @param PDO $pdo Database connection
+ * @param array $data Model data (name, image_url, description)
+ * @return array Result with status and message
+ */
+function addProductModel($pdo, $data) {
+    // Validate required fields
+    if (empty($data['name']) || empty($data['image_url'])) {
+        return [
+            'status' => 'error',
+            'message' => 'Nome e URL da imagem são obrigatórios.'
+        ];
+    }
+    
+    try {
+        // Check if model with same name already exists
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM product_models WHERE name = ?");
+        $stmt->execute([$data['name']]);
+        $count = $stmt->fetchColumn();
+        
+        if ($count > 0) {
+            return [
+                'status' => 'error',
+                'message' => 'Um modelo com este nome já existe.'
+            ];
+        }
+        
+        // Insert new model
+        $stmt = $pdo->prepare("INSERT INTO product_models (name, image_url, description) VALUES (?, ?, ?)");
+        $stmt->execute([$data['name'], $data['image_url'], $data['description'] ?? '']);
+        
+        return [
+            'status' => 'success',
+            'message' => 'Modelo adicionado com sucesso!',
+            'id' => $pdo->lastInsertId()
+        ];
+    } catch (PDOException $e) {
+        error_log('Error adding product model: ' . $e->getMessage());
+        return [
+            'status' => 'error',
+            'message' => 'Erro ao adicionar modelo: ' . $e->getMessage()
+        ];
+    }
+}
+
+/**
+ * Add a new sales representative to the database
+ * 
+ * @param PDO $pdo Database connection
+ * @param array $data Rep data (name, email, phone, avatar_url)
+ * @return array Result with status and message
+ */
+function addSalesRep($pdo, $data) {
+    // Validate required fields
+    if (empty($data['name']) || empty($data['email'])) {
+        return [
+            'status' => 'error',
+            'message' => 'Nome e email são obrigatórios.'
+        ];
+    }
+    
+    // Validate email format
+    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        return [
+            'status' => 'error',
+            'message' => 'Formato de email inválido.'
+        ];
+    }
+    
+    // Generate avatar URL if not provided
+    if (empty($data['avatar_url'])) {
+        $seed = strtolower(str_replace(' ', '', $data['name']));
+        $data['avatar_url'] = "https://api.dicebear.com/7.x/avataaars/svg?seed=$seed";
+    }
+    
+    try {
+        // Check if email already exists
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM sales_representatives WHERE email = ?");
+        $stmt->execute([$data['email']]);
+        $count = $stmt->fetchColumn();
+        
+        if ($count > 0) {
+            return [
+                'status' => 'error',
+                'message' => 'Este email já está cadastrado para outro representante.'
+            ];
+        }
+        
+        // Insert new sales representative
+        $stmt = $pdo->prepare("INSERT INTO sales_representatives (name, email, phone, avatar_url) VALUES (?, ?, ?, ?)");
+        $stmt->execute([
+            $data['name'], 
+            $data['email'], 
+            $data['phone'] ?? '', 
+            $data['avatar_url']
+        ]);
+        
+        return [
+            'status' => 'success',
+            'message' => 'Representante adicionado com sucesso!',
+            'id' => $pdo->lastInsertId()
+        ];
+    } catch (PDOException $e) {
+        error_log('Error adding sales representative: ' . $e->getMessage());
+        return [
+            'status' => 'error',
+            'message' => 'Erro ao adicionar representante: ' . $e->getMessage()
+        ];
+    }
+}
+
+/**
  * Format date for display
  * 
  * @param string $date Date string
@@ -83,5 +201,31 @@ function sanitizeInput($data) {
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
     return $data;
+}
+
+/**
+ * Validate phone number format
+ * 
+ * @param string $phone Phone number to validate
+ * @return bool True if valid, false otherwise
+ */
+function validatePhone($phone) {
+    // Allow empty phone
+    if (empty($phone)) {
+        return true;
+    }
+    
+    // Basic phone validation - adjust regex as needed for your country format
+    return preg_match('/^\+?[0-9\(\)\s\-]{8,20}$/', $phone);
+}
+
+/**
+ * Validate URL format
+ * 
+ * @param string $url URL to validate
+ * @return bool True if valid, false otherwise
+ */
+function validateUrl($url) {
+    return filter_var($url, FILTER_VALIDATE_URL) !== false;
 }
 ?>

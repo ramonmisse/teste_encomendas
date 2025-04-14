@@ -3,61 +3,52 @@ session_start();
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Start transaction for data integrity
     $pdo->beginTransaction();
-    // Validate and sanitize inputs
-    $name = sanitizeInput($_POST['name']);
-    $email = sanitizeInput($_POST['email']);
-    $phone = isset($_POST['phone']) ? sanitizeInput($_POST['phone']) : '';
-    $avatarUrl = isset($_POST['avatar_url']) ? sanitizeInput($_POST['avatar_url']) : '';
-    
-    // If no avatar URL provided, generate one using DiceBear API
-    if (empty($avatarUrl)) {
-        $seed = strtolower(str_replace(' ', '', $name));
-        $avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=$seed";
-    }
-    
-    // Validate required fields
-    if (empty($name) || empty($email)) {
-        // Set error message and redirect back
-        $_SESSION['error'] = 'Nome e email são obrigatórios.';
-        header('Location: ../index.php?page=home&tab=admin&admin_tab=reps');
-        exit;
-    }
-    
-    // Validate email format
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $_SESSION['error'] = 'Formato de email inválido.';
-        header('Location: ../index.php?page=home&tab=admin&admin_tab=reps');
-        exit;
-    }
     
     try {
-        // Check if email already exists
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM sales_representatives WHERE email = ?");
-        $stmt->execute([$email]);
-        $count = $stmt->fetchColumn();
+        // Validate and sanitize inputs
+        $repData = [
+            'name' => sanitizeInput($_POST['name'] ?? ''),
+            'email' => sanitizeInput($_POST['email'] ?? ''),
+            'phone' => sanitizeInput($_POST['phone'] ?? ''),
+            'avatar_url' => sanitizeInput($_POST['avatar_url'] ?? '')
+        ];
         
-        if ($count > 0) {
-            // Email already exists
-            $_SESSION['error'] = 'Este email já está cadastrado para outro representante.';
-        } else {
-            // Insert new sales representative into database
-            $stmt = $pdo->prepare("INSERT INTO sales_representatives (name, email, phone, avatar_url) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$name, $email, $phone, $avatarUrl]);
-            
+        // Validate phone format if provided
+        if (!empty($repData['phone']) && !validatePhone($repData['phone'])) {
+            throw new Exception('Formato de telefone inválido. Use apenas números, parênteses, espaços e hífens.');
+        }
+        
+        // Validate avatar URL format if provided
+        if (!empty($repData['avatar_url']) && !validateUrl($repData['avatar_url'])) {
+            throw new Exception('URL do avatar inválida. Por favor, forneça uma URL válida.');
+        }
+        
+        // Add sales rep using the function
+        $result = addSalesRep($pdo, $repData);
+        
+        if ($result['status'] === 'success') {
             // Commit transaction
             $pdo->commit();
-            // Set success message
-            $_SESSION['success'] = 'Representante adicionado com sucesso!';
+            $_SESSION['success'] = $result['message'];
+        } else {
+            // Rollback transaction
+            $pdo->rollBack();
+            $_SESSION['error'] = $result['message'];
         }
-    } catch (PDOException $e) {
+    } catch (Exception $e) {
         // Rollback transaction
         $pdo->rollBack();
         // Set error message
         $_SESSION['error'] = 'Erro ao adicionar representante: ' . $e->getMessage();
+        error_log('Error in add_rep.php: ' . $e->getMessage());
     }
 }
 

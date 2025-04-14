@@ -3,8 +3,15 @@ session_start();
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Debug: Print POST data
+    error_log('POST data: ' . print_r($_POST, true));
+    
     // Start transaction for data integrity
     $pdo->beginTransaction();
     // Validate and sanitize inputs

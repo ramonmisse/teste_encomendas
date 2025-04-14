@@ -3,37 +3,46 @@ session_start();
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
 
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Start transaction for data integrity
     $pdo->beginTransaction();
-    // Validate and sanitize inputs
-    $name = sanitizeInput($_POST['name']);
-    $imageUrl = sanitizeInput($_POST['image_url']);
-    $description = isset($_POST['description']) ? sanitizeInput($_POST['description']) : '';
-    
-    // Validate required fields
-    if (empty($name) || empty($imageUrl)) {
-        // Set error message and redirect back
-        $_SESSION['error'] = 'Nome e URL da imagem são obrigatórios.';
-        header('Location: ../index.php?page=home&tab=admin&admin_tab=models');
-        exit;
-    }
     
     try {
-        // Insert new model into database
-        $stmt = $pdo->prepare("INSERT INTO product_models (name, image_url, description) VALUES (?, ?, ?)");
-        $stmt->execute([$name, $imageUrl, $description]);
+        // Validate and sanitize inputs
+        $modelData = [
+            'name' => sanitizeInput($_POST['name'] ?? ''),
+            'image_url' => sanitizeInput($_POST['image_url'] ?? ''),
+            'description' => sanitizeInput($_POST['description'] ?? '')
+        ];
         
-        // Commit transaction
-        $pdo->commit();
-        // Set success message
-        $_SESSION['success'] = 'Modelo adicionado com sucesso!';
-    } catch (PDOException $e) {
+        // Validate URL format if provided
+        if (!empty($modelData['image_url']) && !validateUrl($modelData['image_url'])) {
+            throw new Exception('URL da imagem inválida. Por favor, forneça uma URL válida.');
+        }
+        
+        // Add model using the function
+        $result = addProductModel($pdo, $modelData);
+        
+        if ($result['status'] === 'success') {
+            // Commit transaction
+            $pdo->commit();
+            $_SESSION['success'] = $result['message'];
+        } else {
+            // Rollback transaction
+            $pdo->rollBack();
+            $_SESSION['error'] = $result['message'];
+        }
+    } catch (Exception $e) {
         // Rollback transaction
         $pdo->rollBack();
         // Set error message
         $_SESSION['error'] = 'Erro ao adicionar modelo: ' . $e->getMessage();
+        error_log('Error in add_model.php: ' . $e->getMessage());
     }
 }
 
