@@ -5,59 +5,8 @@ $adminTab = isset($_GET['admin_tab']) ? $_GET['admin_tab'] : 'models';
 // Get product models from database
 $models = getProductModels($pdo);
 
-// If no models in database yet, use mock data for demonstration
-if (empty($models)) {
-    $models = [
-        [
-            'id' => 1,
-            'name' => 'Classic Ring',
-            'image_url' => 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=300&q=80',
-            'description' => 'Traditional ring design with customizable gemstone',
-        ],
-        [
-            'id' => 2,
-            'name' => 'Modern Bracelet',
-            'image_url' => 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=300&q=80',
-            'description' => 'Contemporary bracelet with adjustable links',
-        ],
-        [
-            'id' => 3,
-            'name' => 'Pendant Necklace',
-            'image_url' => 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&q=80',
-            'description' => 'Elegant pendant with customizable chain length',
-        ],
-    ];
-}
-
 // Get sales representatives from database
 $salesReps = getSalesReps($pdo);
-
-// If no sales reps in database yet, use mock data for demonstration
-if (empty($salesReps)) {
-    $salesReps = [
-        [
-            'id' => 1,
-            'name' => 'Maria Silva',
-            'email' => 'maria.silva@example.com',
-            'phone' => '(11) 98765-4321',
-            'avatar_url' => 'https://api.dicebear.com/7.x/avataaars/svg?seed=maria',
-        ],
-        [
-            'id' => 2,
-            'name' => 'João Santos',
-            'email' => 'joao.santos@example.com',
-            'phone' => '(11) 91234-5678',
-            'avatar_url' => 'https://api.dicebear.com/7.x/avataaars/svg?seed=joao',
-        ],
-        [
-            'id' => 3,
-            'name' => 'Ana Oliveira',
-            'email' => 'ana.oliveira@example.com',
-            'phone' => '(11) 99876-5432',
-            'avatar_url' => 'https://api.dicebear.com/7.x/avataaars/svg?seed=ana',
-        ],
-    ];
-}
 ?>
 
 <div class="card">
@@ -99,36 +48,44 @@ if (empty($salesReps)) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($models as $model): ?>
+                            <?php if (empty($models)): ?>
                                 <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="<?php echo htmlspecialchars($model['image_url']); ?>" 
-                                                 alt="<?php echo htmlspecialchars($model['name']); ?>" 
-                                                 class="image-thumbnail me-2">
-                                        </div>
-                                    </td>
-                                    <td class="fw-medium"><?php echo htmlspecialchars($model['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($model['description']); ?></td>
-                                    <td class="text-end">
-                                        <div class="d-flex justify-content-end gap-1">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-icon edit-model-btn" 
-                                                    data-id="<?php echo $model['id']; ?>" 
-                                                    data-name="<?php echo htmlspecialchars($model['name']); ?>" 
-                                                    data-image-url="<?php echo htmlspecialchars($model['image_url']); ?>" 
-                                                    data-description="<?php echo htmlspecialchars($model['description']); ?>" 
-                                                    data-bs-toggle="modal" data-bs-target="#editModelModal">
-                                                <i class="fas fa-pencil-alt"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger btn-icon delete-model-btn" 
-                                                    data-id="<?php echo $model['id']; ?>" 
-                                                    data-bs-toggle="modal" data-bs-target="#deleteModelModal">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
+                                    <td colspan="4" class="text-center py-4">
+                                        <p class="text-muted mb-0">Nenhum modelo cadastrado. Adicione um modelo para começar.</p>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php else: ?>
+                                <?php foreach ($models as $model): ?>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img src="<?php echo htmlspecialchars($model['image_url']); ?>" 
+                                                     alt="<?php echo htmlspecialchars($model['name']); ?>" 
+                                                     class="image-thumbnail me-2">
+                                            </div>
+                                        </td>
+                                        <td class="fw-medium"><?php echo htmlspecialchars($model['name']); ?></td>
+                                        <td><?php echo htmlspecialchars($model['description']); ?></td>
+                                        <td class="text-end">
+                                            <div class="d-flex justify-content-end gap-1">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-icon edit-model-btn" 
+                                                        data-id="<?php echo $model['id']; ?>" 
+                                                        data-name="<?php echo htmlspecialchars($model['name']); ?>" 
+                                                        data-image-url="<?php echo htmlspecialchars($model['image_url']); ?>" 
+                                                        data-description="<?php echo htmlspecialchars($model['description']); ?>" 
+                                                        data-bs-toggle="modal" data-bs-target="#editModelModal">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger btn-icon delete-model-btn" 
+                                                        data-id="<?php echo $model['id']; ?>" 
+                                                        data-bs-toggle="modal" data-bs-target="#deleteModelModal">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -155,36 +112,44 @@ if (empty($salesReps)) {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($salesReps as $rep): ?>
+                            <?php if (empty($salesReps)): ?>
                                 <tr>
-                                    <td>
-                                        <img src="<?php echo htmlspecialchars($rep['avatar_url']); ?>" 
-                                             alt="<?php echo htmlspecialchars($rep['name']); ?>" 
-                                             class="avatar">
-                                    </td>
-                                    <td class="fw-medium"><?php echo htmlspecialchars($rep['name']); ?></td>
-                                    <td><?php echo htmlspecialchars($rep['email']); ?></td>
-                                    <td><?php echo htmlspecialchars($rep['phone']); ?></td>
-                                    <td class="text-end">
-                                        <div class="d-flex justify-content-end gap-1">
-                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-icon edit-rep-btn" 
-                                                    data-id="<?php echo $rep['id']; ?>" 
-                                                    data-name="<?php echo htmlspecialchars($rep['name']); ?>" 
-                                                    data-email="<?php echo htmlspecialchars($rep['email']); ?>" 
-                                                    data-phone="<?php echo htmlspecialchars($rep['phone']); ?>" 
-                                                    data-avatar-url="<?php echo htmlspecialchars($rep['avatar_url']); ?>" 
-                                                    data-bs-toggle="modal" data-bs-target="#editRepModal">
-                                                <i class="fas fa-pencil-alt"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-outline-danger btn-icon delete-rep-btn" 
-                                                    data-id="<?php echo $rep['id']; ?>" 
-                                                    data-bs-toggle="modal" data-bs-target="#deleteRepModal">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
+                                    <td colspan="5" class="text-center py-4">
+                                        <p class="text-muted mb-0">Nenhum representante cadastrado. Adicione um representante para começar.</p>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php else: ?>
+                                <?php foreach ($salesReps as $rep): ?>
+                                    <tr>
+                                        <td>
+                                            <img src="<?php echo htmlspecialchars($rep['avatar_url']); ?>" 
+                                                 alt="<?php echo htmlspecialchars($rep['name']); ?>" 
+                                                 class="avatar">
+                                        </td>
+                                        <td class="fw-medium"><?php echo htmlspecialchars($rep['name']); ?></td>
+                                        <td><?php echo htmlspecialchars($rep['email']); ?></td>
+                                        <td><?php echo htmlspecialchars($rep['phone']); ?></td>
+                                        <td class="text-end">
+                                            <div class="d-flex justify-content-end gap-1">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-icon edit-rep-btn" 
+                                                        data-id="<?php echo $rep['id']; ?>" 
+                                                        data-name="<?php echo htmlspecialchars($rep['name']); ?>" 
+                                                        data-email="<?php echo htmlspecialchars($rep['email']); ?>" 
+                                                        data-phone="<?php echo htmlspecialchars($rep['phone']); ?>" 
+                                                        data-avatar-url="<?php echo htmlspecialchars($rep['avatar_url']); ?>" 
+                                                        data-bs-toggle="modal" data-bs-target="#editRepModal">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger btn-icon delete-rep-btn" 
+                                                        data-id="<?php echo $rep['id']; ?>" 
+                                                        data-bs-toggle="modal" data-bs-target="#deleteRepModal">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>

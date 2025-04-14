@@ -1,59 +1,6 @@
 <?php
 // Fetch orders from database
 $orders = getOrders($pdo);
-
-// If no orders in database yet, use mock data for demonstration
-if (empty($orders)) {
-    $orders = [
-        [
-            'id' => 1,
-            'sales_rep' => 'Jane Smith',
-            'client' => 'Maria Johnson',
-            'model' => 'Pendant Necklace',
-            'metal_type' => 'Gold',
-            'delivery_date' => '2023-06-15',
-            'notes' => 'Client wants a custom engraving on the back',
-            'image_url' => 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=500&q=80',
-        ],
-        [
-            'id' => 2,
-            'sales_rep' => 'Emily Davis',
-            'client' => 'Sarah Williams',
-            'model' => 'Stud Earrings',
-            'metal_type' => 'Silver',
-            'delivery_date' => '2023-06-20',
-            'image_url' => 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500&q=80',
-        ],
-        [
-            'id' => 3,
-            'sales_rep' => 'Michael Brown',
-            'client' => 'Robert Taylor',
-            'model' => 'Custom Ring',
-            'metal_type' => 'Gold',
-            'delivery_date' => '2023-06-25',
-            'notes' => 'Size 7, with diamond inlay',
-            'image_url' => 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500&q=80',
-        ],
-        [
-            'id' => 4,
-            'sales_rep' => 'Lisa Johnson',
-            'client' => 'Jennifer Garcia',
-            'model' => 'Charm Bracelet',
-            'metal_type' => 'Silver',
-            'delivery_date' => '2023-06-30',
-        ],
-        [
-            'id' => 5,
-            'sales_rep' => 'David Wilson',
-            'client' => 'Thomas Martinez',
-            'model' => 'Cufflinks',
-            'metal_type' => 'Not Applicable',
-            'delivery_date' => '2023-07-05',
-            'notes' => 'Custom logo engraving',
-            'image_url' => 'https://images.unsplash.com/photo-1600721391776-b5cd0e0048f9?w=500&q=80',
-        ],
-    ];
-}
 ?>
 
 <div class="card">
@@ -75,66 +22,74 @@ if (empty($orders)) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($orders as $order): ?>
+                    <?php if (empty($orders)): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($order['sales_rep']); ?></td>
-                            <td><?php echo htmlspecialchars($order['client']); ?></td>
-                            <td><?php echo htmlspecialchars($order['model']); ?></td>
-                            <td><?php echo htmlspecialchars($order['metal_type']); ?></td>
-                            <td><?php echo formatDate($order['delivery_date']); ?></td>
-                            <td>
-                                <?php if (isset($order['image_url']) && !empty($order['image_url'])): ?>
-                                    <div class="hover-card">
-                                        <button class="btn btn-sm btn-outline-secondary image-preview-link" data-image-url="<?php echo htmlspecialchars($order['image_url']); ?>">
-                                            <i class="fas fa-image"></i>
-                                        </button>
-                                        <div class="hover-card-content">
-                                            <img src="<?php echo htmlspecialchars($order['image_url']); ?>" alt="Order reference" class="img-fluid rounded">
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    <span class="text-muted">Sem imagem</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <div class="d-flex gap-1">
-                                    <!-- View button with tooltip -->
-                                    <div class="tooltip-wrapper">
-                                        <a href="index.php?page=view-order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-primary btn-icon">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <span class="tooltip-content">Ver Pedido</span>
-                                    </div>
-                                    
-                                    <!-- Edit button with tooltip -->
-                                    <div class="tooltip-wrapper">
-                                        <a href="index.php?page=edit-order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-secondary btn-icon">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <span class="tooltip-content">Editar Pedido</span>
-                                    </div>
-                                    
-                                    <?php if (isset($order['image_url']) && !empty($order['image_url'])): ?>
-                                        <!-- Download button with tooltip -->
-                                        <div class="tooltip-wrapper">
-                                            <a href="<?php echo htmlspecialchars($order['image_url']); ?>" download class="btn btn-sm btn-outline-info btn-icon">
-                                                <i class="fas fa-download"></i>
-                                            </a>
-                                            <span class="tooltip-content">Baixar Imagem</span>
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <!-- Delete button with tooltip -->
-                                    <div class="tooltip-wrapper">
-                                        <button class="btn btn-sm btn-outline-danger btn-icon delete-btn" data-id="<?php echo $order['id']; ?>">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                        <span class="tooltip-content">Excluir Pedido</span>
-                                    </div>
-                                </div>
+                            <td colspan="7" class="text-center py-4">
+                                <p class="text-muted mb-0">Nenhum pedido encontrado. Crie um novo pedido para começar.</p>
                             </td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <?php foreach ($orders as $order): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($order['sales_rep']); ?></td>
+                                <td><?php echo htmlspecialchars($order['client']); ?></td>
+                                <td><?php echo htmlspecialchars($order['model']); ?></td>
+                                <td><?php echo htmlspecialchars($order['metal_type']); ?></td>
+                                <td><?php echo formatDate($order['delivery_date']); ?></td>
+                                <td>
+                                    <?php if (isset($order['image_url']) && !empty($order['image_url'])): ?>
+                                        <div class="hover-card">
+                                            <button class="btn btn-sm btn-outline-secondary image-preview-link" data-image-url="<?php echo htmlspecialchars($order['image_url']); ?>">
+                                                <i class="fas fa-image"></i>
+                                            </button>
+                                            <div class="hover-card-content">
+                                                <img src="<?php echo htmlspecialchars($order['image_url']); ?>" alt="Order reference" class="img-fluid rounded">
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <span class="text-muted">Sem imagem</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <!-- View button with tooltip -->
+                                        <div class="tooltip-wrapper">
+                                            <a href="index.php?page=view-order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-primary btn-icon">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <span class="tooltip-content">Ver Pedido</span>
+                                        </div>
+                                        
+                                        <!-- Edit button with tooltip -->
+                                        <div class="tooltip-wrapper">
+                                            <a href="index.php?page=edit-order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-secondary btn-icon">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <span class="tooltip-content">Editar Pedido</span>
+                                        </div>
+                                        
+                                        <?php if (isset($order['image_url']) && !empty($order['image_url'])): ?>
+                                            <!-- Download button with tooltip -->
+                                            <div class="tooltip-wrapper">
+                                                <a href="<?php echo htmlspecialchars($order['image_url']); ?>" download class="btn btn-sm btn-outline-info btn-icon">
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                                <span class="tooltip-content">Baixar Imagem</span>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <!-- Delete button with tooltip -->
+                                        <div class="tooltip-wrapper">
+                                            <button class="btn btn-sm btn-outline-danger btn-icon delete-btn" data-id="<?php echo $order['id']; ?>">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <span class="tooltip-content">Excluir Pedido</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
