@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("imagePreviewModal"),
       );
       document.getElementById("previewImage").src = imageUrl;
+      document.getElementById("downloadImageLink").href = imageUrl;
       previewModal.show();
     });
   });

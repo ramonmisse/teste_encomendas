@@ -14,16 +14,6 @@ $salesReps = getSalesReps($pdo);
 
 // Get product models from database
 $models = getProductModels($pdo);
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Process form data here
-    // In a real implementation, you would validate inputs and save to database
-    
-    // Redirect to order listing after successful submission
-    header('Location: index.php?page=home&tab=orders');
-    exit;
-}
 ?>
 
 <div class="card">
@@ -81,11 +71,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <!-- Delivery Date -->
                     <div class="col-md-6 mb-3">
-                        <label for="deliveryDate" class="form-label">Data de Entrega</label>
-                        <input type="date" class="form-control" id="deliveryDate" name="delivery_date" 
-                               value="<?php echo $isEditing ? $order['delivery_date'] : ''; ?>" 
-                               min="<?php echo date('Y-m-d'); ?>" required>
-                        <div class="invalid-feedback">Por favor, selecione uma data de entrega válida.</div>
+                        <label for="deliveryDate" class="form-label">Data e Hora de Entrega</label>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <input type="date" class="form-control" id="deliveryDate" name="delivery_date" 
+                                       value="<?php echo $isEditing ? date('Y-m-d', strtotime($order['delivery_date'])) : ''; ?>" 
+                                       min="<?php echo date('Y-m-d'); ?>" required>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="time" class="form-control" id="deliveryTime" name="delivery_time" 
+                                       value="<?php echo $isEditing ? date('H:i', strtotime($order['delivery_date'])) : ''; ?>" required>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback">Por favor, selecione uma data e hora de entrega válida.</div>
                     </div>
                 </div>
                 
@@ -138,8 +136,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <!-- Image preview container -->
                     <div class="row mt-3" id="image-preview-container">
-                        <?php if ($isEditing && isset($order['images'])): ?>
-                            <?php foreach ($order['images'] as $index => $image): ?>
+                        <?php if ($isEditing && isset($order['image_urls'])): ?>
+                            <?php 
+                                $imageUrlsArray = json_decode($order['image_urls'], true);
+                                if (is_array($imageUrlsArray)) {
+                                    foreach ($imageUrlsArray as $index => $image): 
+                            ?>
                                 <div class="col-6 col-md-3 mb-3 position-relative">
                                     <div class="card h-100">
                                         <img src="<?php echo htmlspecialchars($image); ?>" class="card-img-top" alt="Preview">
@@ -148,7 +150,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </button>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
+                            <?php 
+                                    endforeach;
+                                }
+                            ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -179,11 +184,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Fetch all forms we want to apply validation to
     var forms = document.querySelectorAll('.needs-validation');
     
-    // Loop over them and prevent submission
+    // Model card selection
+    var modelCards = document.querySelectorAll('.model-card');
+    var modelInput = document.getElementById('modelInput');
+    
+    // Add click event to model cards
+    modelCards.forEach(function(card) {
+        card.addEventListener('click', function() {
+            // Remove selected class from all cards
+            modelCards.forEach(function(c) {
+                c.classList.remove('selected');
+            });
+            // Add selected class to clicked card
+            this.classList.add('selected');
+            // Set model ID in hidden input
+            modelInput.value = this.getAttribute('data-model-id');
+        });
+    });
+    
+    // Loop over forms and prevent submission
     Array.prototype.slice.call(forms).forEach(function(form) {
         form.addEventListener('submit', function(event) {
             // Check if model is selected
-            var modelInput = document.getElementById('modelInput');
             if (!modelInput.value) {
                 event.preventDefault();
                 event.stopPropagation();

@@ -17,7 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate and sanitize inputs
     $salesRepId = (int)$_POST['sales_representative_id'];
     $clientName = sanitizeInput($_POST['client_name']);
+    
+    // Combine date and time for delivery date
     $deliveryDate = sanitizeInput($_POST['delivery_date']);
+    $deliveryTime = isset($_POST['delivery_time']) ? sanitizeInput($_POST['delivery_time']) : '00:00';
+    $deliveryDateTime = $deliveryDate . ' ' . $deliveryTime;
+    
     $modelId = (int)$_POST['model_id'];
     $metalType = sanitizeInput($_POST['metal_type']);
     $notes = isset($_POST['notes']) ? sanitizeInput($_POST['notes']) : '';
@@ -83,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 notes = ?, 
                 image_urls = ?
                 WHERE id = ?");
-            $stmt->execute([$salesRepId, $clientName, $deliveryDate, $modelId, $metalType, $notes, $imageUrlsJson, $id]);
+            $stmt->execute([$salesRepId, $clientName, $deliveryDateTime, $modelId, $metalType, $notes, $imageUrlsJson, $id]);
             
             // Commit transaction
             $pdo->commit();
@@ -93,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO orders 
                 (sales_representative_id, client_name, delivery_date, model_id, metal_type, notes, image_urls, created_at) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-            $stmt->execute([$salesRepId, $clientName, $deliveryDate, $modelId, $metalType, $notes, $imageUrlsJson]);
+            $stmt->execute([$salesRepId, $clientName, $deliveryDateTime, $modelId, $metalType, $notes, $imageUrlsJson]);
             
             // Commit transaction
             $pdo->commit();

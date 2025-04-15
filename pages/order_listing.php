@@ -1,7 +1,56 @@
 <?php
-// Fetch orders from database
-$orders = getOrders($pdo);
+// Get filter parameters
+$filters = [
+    'start_date' => isset($_GET['start_date']) ? $_GET['start_date'] : '',
+    'end_date' => isset($_GET['end_date']) ? $_GET['end_date'] : '',
+    'model_id' => isset($_GET['model_id']) ? $_GET['model_id'] : ''
+];
+
+// Fetch orders from database with filters
+$orders = getOrders($pdo, $filters);
 ?>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h2 class="card-title h5 mb-0">Filtros</h2>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <input type="hidden" name="page" value="order_listing">
+            <div class="col-md-3">
+                <label for="start_date" class="form-label">Data Inicial</label>
+                <input type="date" class="form-control" id="start_date" name="start_date" value="<?php echo htmlspecialchars($filters['start_date']); ?>">
+            </div>
+            <div class="col-md-3">
+                <label for="end_date" class="form-label">Data Final</label>
+                <input type="date" class="form-control" id="end_date" name="end_date" value="<?php echo htmlspecialchars($filters['end_date']); ?>">
+            </div>
+            <div class="col-md-4">
+                <label for="model_id" class="form-label">Modelo</label>
+                <select class="form-select" id="model_id" name="model_id">
+                    <option value="">Todos os Modelos</option>
+                    <?php
+                    $models = getProductModels($pdo);
+                    foreach ($models as $model) {
+                        $selected = ($filters['model_id'] == $model['id']) ? 'selected' : '';
+                        echo "<option value=\"{$model['id']}\" {$selected}>{$model['name']}</option>";
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="d-flex gap-2 w-100">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-filter me-1"></i> Filtrar
+                    </button>
+                    <a href="index.php?page=order_listing" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo"></i>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 <div class="card">
     <div class="card-header">
@@ -37,15 +86,23 @@ $orders = getOrders($pdo);
                                 <td><?php echo htmlspecialchars($order['metal_type']); ?></td>
                                 <td><?php echo formatDate($order['delivery_date']); ?></td>
                                 <td>
-                                    <?php if (isset($order['image_url']) && !empty($order['image_url'])): ?>
+                                    <?php if (isset($order['image_urls']) && !empty($order['image_urls'])): ?>
+                                        <?php 
+                                            $imageUrlsArray = json_decode($order['image_urls'], true);
+                                            $firstImage = is_array($imageUrlsArray) && !empty($imageUrlsArray) ? $imageUrlsArray[0] : '';
+                                        ?>
+                                        <?php if (!empty($firstImage)): ?>
                                         <div class="hover-card">
-                                            <button class="btn btn-sm btn-outline-secondary image-preview-link" data-image-url="<?php echo htmlspecialchars($order['image_url']); ?>">
+                                            <button class="btn btn-sm btn-outline-secondary image-preview-link" data-image-url="<?php echo htmlspecialchars($firstImage); ?>">
                                                 <i class="fas fa-image"></i>
                                             </button>
                                             <div class="hover-card-content">
-                                                <img src="<?php echo htmlspecialchars($order['image_url']); ?>" alt="Order reference" class="img-fluid rounded" onerror="this.onerror=null; this.src='assets/images/no-image.png'; this.alt='Image not found';">
+                                                <img src="<?php echo htmlspecialchars($firstImage); ?>" alt="Order reference" class="img-fluid rounded" onerror="this.onerror=null; this.src='assets/images/no-image.png'; this.alt='Image not found';">
                                             </div>
                                         </div>
+                                        <?php else: ?>
+                                            <span class="text-muted">Sem imagem</span>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <span class="text-muted">Sem imagem</span>
                                     <?php endif; ?>
@@ -54,7 +111,7 @@ $orders = getOrders($pdo);
                                     <div class="d-flex gap-1">
                                         <!-- View button with tooltip -->
                                         <div class="tooltip-wrapper">
-                                            <a href="index.php?page=view-order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-primary btn-icon">
+                                            <a href="index.php?page=view_order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-primary btn-icon">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <span class="tooltip-content">Ver Pedido</span>
@@ -62,20 +119,26 @@ $orders = getOrders($pdo);
                                         
                                         <!-- Edit button with tooltip -->
                                         <div class="tooltip-wrapper">
-                                            <a href="index.php?page=edit-order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-secondary btn-icon">
+                                            <a href="index.php?page=order_form&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-secondary btn-icon">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <span class="tooltip-content">Editar Pedido</span>
                                         </div>
                                         
-                                        <?php if (isset($order['image_url']) && !empty($order['image_url'])): ?>
+                                        <?php if (isset($order['image_urls']) && !empty($order['image_urls'])): ?>
+                                            <?php 
+                                                $imageUrlsArray = json_decode($order['image_urls'], true);
+                                                $firstImage = is_array($imageUrlsArray) && !empty($imageUrlsArray) ? $imageUrlsArray[0] : '';
+                                            ?>
+                                            <?php if (!empty($firstImage)): ?>
                                             <!-- Download button with tooltip -->
                                             <div class="tooltip-wrapper">
-                                                <a href="<?php echo htmlspecialchars($order['image_url']); ?>" download class="btn btn-sm btn-outline-info btn-icon">
+                                                <a href="<?php echo htmlspecialchars($firstImage); ?>" download class="btn btn-sm btn-outline-info btn-icon">
                                                     <i class="fas fa-download"></i>
                                                 </a>
                                                 <span class="tooltip-content">Baixar Imagem</span>
                                             </div>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                         
                                         <!-- Delete button with tooltip -->
@@ -138,3 +201,53 @@ $orders = getOrders($pdo);
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Image preview functionality
+        const imagePreviewLinks = document.querySelectorAll('.image-preview-link');
+        const previewImage = document.getElementById('previewImage');
+        const downloadImageLink = document.getElementById('downloadImageLink');
+        const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+        
+        imagePreviewLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const imageUrl = this.getAttribute('data-image-url');
+                previewImage.src = imageUrl;
+                downloadImageLink.href = imageUrl;
+                imagePreviewModal.show();
+            });
+        });
+        
+        // Delete confirmation functionality
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        const deleteForm = document.getElementById('deleteForm');
+        const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.getAttribute('data-id');
+                deleteForm.querySelector('input[name="id"]').value = orderId;
+                deleteConfirmModal.show();
+            });
+        });
+        
+        // Tooltip hover functionality
+        const tooltipWrappers = document.querySelectorAll('.tooltip-wrapper');
+        
+        tooltipWrappers.forEach(wrapper => {
+            const tooltip = wrapper.querySelector('.tooltip-content');
+            
+            wrapper.addEventListener('mouseenter', function() {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '1';
+            });
+            
+            wrapper.addEventListener('mouseleave', function() {
+                tooltip.style.visibility = 'hidden';
+                tooltip.style.opacity = '0';
+            });
+        });
+    });
+</script>

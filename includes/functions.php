@@ -3,15 +3,49 @@
  * Get all orders from the database
  * 
  * @param PDO $pdo Database connection
+ * @param array $filters Optional filters (start_date, end_date, model_id)
  * @return array Array of orders
  */
-function getOrders($pdo) {
+function getOrders($pdo, $filters = []) {
     try {
-        $stmt = $pdo->query("SELECT o.*, m.name as model, s.name as sales_rep, o.client_name as client 
-                           FROM orders o 
-                           JOIN product_models m ON o.model_id = m.id 
-                           JOIN sales_representatives s ON o.sales_representative_id = s.id 
-                           ORDER BY o.created_at DESC");
+        $where = [];
+        $params = [];
+        
+        // Base query
+        $sql = "SELECT o.*, m.name as model, s.name as sales_rep, o.client_name as client 
+               FROM orders o 
+               JOIN product_models m ON o.model_id = m.id 
+               JOIN sales_representatives s ON o.sales_representative_id = s.id";
+        
+        // Add date filters
+        if (!empty($filters['start_date'])) {
+            $where[] = "o.delivery_date >= ?"; 
+            $params[] = $filters['start_date'];
+        }
+        
+        if (!empty($filters['end_date'])) {
+            $where[] = "o.delivery_date <= ?"; 
+            $params[] = $filters['end_date'];
+        }
+        
+        // Add model filter
+        if (!empty($filters['model_id'])) {
+            $where[] = "o.model_id = ?"; 
+            $params[] = $filters['model_id'];
+        }
+        
+        // Add WHERE clause if we have filters
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(" AND ", $where);
+        }
+        
+        // Add order by
+        $sql .= " ORDER BY o.created_at DESC";
+        
+        // Prepare and execute the statement
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        
         return $stmt->fetchAll();
     } catch(PDOException $e) {
         // For development, show error. For production, log error and show generic message
@@ -184,10 +218,15 @@ function addSalesRep($pdo, $data) {
  * Format date for display
  * 
  * @param string $date Date string
+ * @param bool $includeTime Whether to include time in the formatted date
  * @return string Formatted date
  */
-function formatDate($date) {
-    return date("d/m/Y", strtotime($date));
+function formatDate($date, $includeTime = true) {
+    if ($includeTime) {
+        return date("d/m/Y H:i", strtotime($date));
+    } else {
+        return date("d/m/Y", strtotime($date));
+    }
 }
 
 /**
