@@ -7,7 +7,7 @@
  */
 function getOrders($pdo) {
     try {
-        $stmt = $pdo->query("SELECT o.*, m.name as model, s.name as sales_rep 
+        $stmt = $pdo->query("SELECT o.*, m.name as model, s.name as sales_rep, o.client_name as client 
                            FROM orders o 
                            JOIN product_models m ON o.model_id = m.id 
                            JOIN sales_representatives s ON o.sales_representative_id = s.id 

@@ -32,7 +32,7 @@ $orders = getOrders($pdo);
                         <?php foreach ($orders as $order): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($order['sales_rep']); ?></td>
-                                <td><?php echo htmlspecialchars($order['client']); ?></td>
+                                <td><?php echo isset($order['client']) ? htmlspecialchars($order['client']) : 'N/A'; ?></td>
                                 <td><?php echo htmlspecialchars($order['model']); ?></td>
                                 <td><?php echo htmlspecialchars($order['metal_type']); ?></td>
                                 <td><?php echo formatDate($order['delivery_date']); ?></td>
@@ -43,7 +43,7 @@ $orders = getOrders($pdo);
                                                 <i class="fas fa-image"></i>
                                             </button>
                                             <div class="hover-card-content">
-                                                <img src="<?php echo htmlspecialchars($order['image_url']); ?>" alt="Order reference" class="img-fluid rounded">
+                                                <img src="<?php echo htmlspecialchars($order['image_url']); ?>" alt="Order reference" class="img-fluid rounded" onerror="this.onerror=null; this.src='assets/images/no-image.png'; this.alt='Image not found';">
                                             </div>
                                         </div>
                                     <?php else: ?>
