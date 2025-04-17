@@ -241,7 +241,7 @@ $orders = getOrders($pdo, $filters);
                 modalBody.innerHTML = `
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Representante:</strong> ${data.sales_rep}</p>
+                            <p><strong>Representante:</strong> ${data.sales_rep_name}</p>
                             <p><strong>Cliente:</strong> ${data.client_name}</p>
                             <p><strong>Modelo:</strong> ${data.model_name}</p>
                         </div>
