@@ -111,7 +111,7 @@ $orders = getOrders($pdo, $filters);
                                     <div class="d-flex gap-1">
                                         <!-- View button with tooltip -->
                                         <div class="tooltip-wrapper">
-                                            <a href="index.php?page=view_order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-primary btn-icon">
+                                            <a href="index.php?page=view_order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-primary btn-icon" onclick="location.href=this.href;">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <span class="tooltip-content">Ver Pedido</span>
@@ -119,7 +119,7 @@ $orders = getOrders($pdo, $filters);
                                         
                                         <!-- Edit button with tooltip -->
                                         <div class="tooltip-wrapper">
-                                            <a href="index.php?page=order_form&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-secondary btn-icon">
+                                            <a href="index.php?page=order_form&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-secondary btn-icon" onclick="location.href=this.href;">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <span class="tooltip-content">Editar Pedido</span>
