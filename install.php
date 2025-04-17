@@ -54,6 +54,7 @@ try {
         `delivery_date` date NOT NULL,
         `model_id` int(11) NOT NULL,
         `metal_type` varchar(20) NOT NULL,
+        `status` varchar(20) DEFAULT 'Em produção',
         `notes` text DEFAULT NULL,
         `image_urls` text DEFAULT NULL,
         `created_at` datetime NOT NULL,

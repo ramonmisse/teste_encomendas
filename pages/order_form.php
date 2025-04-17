@@ -92,6 +92,19 @@ $models = getProductModels($pdo);
                     <label class="form-label">Modelo do Produto</label>
                     <input type="hidden" id="modelInput" name="model_id" 
                            value="<?php echo $isEditing ? $order['model_id'] : ''; ?>" required>
+
+                <!-- Status -->
+                <div class="mb-4">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status" required>
+                        <option value="Em produção" <?php echo ($isEditing && $order['status'] == 'Em produção') ? 'selected' : ''; ?>>Em produção</option>
+                        <option value="Gravado" <?php echo ($isEditing && $order['status'] == 'Gravado') ? 'selected' : ''; ?>>Gravado</option>
+                        <option value="Separado" <?php echo ($isEditing && $order['status'] == 'Separado') ? 'selected' : ''; ?>>Separado</option>
+                        <option value="Enviado" <?php echo ($isEditing && $order['status'] == 'Enviado') ? 'selected' : ''; ?>>Enviado</option>
+                        <option value="Entregue" <?php echo ($isEditing && $order['status'] == 'Entregue') ? 'selected' : ''; ?>>Entregue</option>
+                    </select>
+                </div>
+
                     
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
                         <?php foreach ($models as $model): ?>

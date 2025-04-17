@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $modelId = (int)$_POST['model_id'];
     $metalType = sanitizeInput($_POST['metal_type']);
+    $status = sanitizeInput($_POST['status']);
     $notes = isset($_POST['notes']) ? sanitizeInput($_POST['notes']) : '';
     
     // Validate required fields
@@ -84,11 +85,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 client_name = ?, 
                 delivery_date = ?, 
                 model_id = ?, 
-                metal_type = ?, 
+                metal_type = ?,
+                status = ?,
                 notes = ?, 
                 image_urls = ?
                 WHERE id = ?");
-            $stmt->execute([$salesRepId, $clientName, $deliveryDateTime, $modelId, $metalType, $notes, $imageUrlsJson, $id]);
+            $stmt->execute([$salesRepId, $clientName, $deliveryDateTime, $modelId, $metalType, $status, $notes, $imageUrlsJson, $id]);
             
             // Commit transaction
             $pdo->commit();
@@ -96,9 +98,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Insert new order
             $stmt = $pdo->prepare("INSERT INTO orders 
-                (sales_representative_id, client_name, delivery_date, model_id, metal_type, notes, image_urls, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-            $stmt->execute([$salesRepId, $clientName, $deliveryDateTime, $modelId, $metalType, $notes, $imageUrlsJson]);
+                (sales_representative_id, client_name, delivery_date, model_id, metal_type, status, notes, image_urls, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            $stmt->execute([$salesRepId, $clientName, $deliveryDateTime, $modelId, $metalType, $status, $notes, $imageUrlsJson]);
             
             // Commit transaction
             $pdo->commit();
