@@ -111,17 +111,17 @@ $orders = getOrders($pdo, $filters);
                                     <div class="d-flex gap-1">
                                         <!-- View button with tooltip -->
                                         <div class="tooltip-wrapper">
-                                            <a href="index.php?page=view_order&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-primary btn-icon" onclick="location.href=this.href;">
+                                            <button type="button" class="btn btn-sm btn-outline-primary btn-icon" onclick="viewOrder(<?php echo $order['id']; ?>)">
                                                 <i class="fas fa-eye"></i>
-                                            </a>
+                                            </button>
                                             <span class="tooltip-content">Ver Pedido</span>
                                         </div>
                                         
                                         <!-- Edit button with tooltip -->
                                         <div class="tooltip-wrapper">
-                                            <a href="index.php?page=order_form&id=<?php echo $order['id']; ?>" class="btn btn-sm btn-outline-secondary btn-icon" onclick="location.href=this.href;">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" onclick="editOrder(<?php echo $order['id']; ?>)">
                                                 <i class="fas fa-edit"></i>
-                                            </a>
+                                            </button>
                                             <span class="tooltip-content">Editar Pedido</span>
                                         </div>
                                         
@@ -180,6 +180,36 @@ $orders = getOrders($pdo, $filters);
     </div>
 </div>
 
+<!-- View Order Modal -->
+<div class="modal fade" id="viewOrderModal" tabindex="-1" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewOrderModalLabel">Detalhes do Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="viewOrderDetails">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Order Modal -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editOrderModalLabel">Editar Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="editOrderForm">
+                <!-- Content will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -203,6 +233,56 @@ $orders = getOrders($pdo, $filters);
 </div>
 
 <script>
+    function viewOrder(orderId) {
+        fetch(`actions/get_order.php?id=${orderId}`)
+            .then(response => response.json())
+            .then(data => {
+                const modalBody = document.getElementById('viewOrderDetails');
+                modalBody.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Representante:</strong> ${data.sales_rep}</p>
+                            <p><strong>Cliente:</strong> ${data.client_name}</p>
+                            <p><strong>Modelo:</strong> ${data.model_name}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Tipo de Metal:</strong> ${data.metal_type}</p>
+                            <p><strong>Data de Entrega:</strong> ${data.delivery_date}</p>
+                        </div>
+                    </div>
+                    ${data.notes ? `<div class="mt-3"><strong>Observações:</strong><p>${data.notes}</p></div>` : ''}
+                    ${data.image_urls ? `
+                        <div class="mt-3">
+                            <strong>Imagens:</strong>
+                            <div class="row mt-2">
+                                ${JSON.parse(data.image_urls).map(url => `
+                                    <div class="col-md-4 mb-2">
+                                        <img src="${url}" class="img-fluid rounded" alt="Imagem do pedido">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+                new bootstrap.Modal(document.getElementById('viewOrderModal')).show();
+            });
+    }
+
+    function editOrder(orderId) {
+        fetch(`actions/get_order.php?id=${orderId}`)
+            .then(response => response.json())
+            .then(data => {
+                const modalBody = document.getElementById('editOrderForm');
+                // Load the order form into the modal
+                fetch(`index.php?page=order_form&id=${orderId}&modal=true`)
+                    .then(response => response.text())
+                    .then(html => {
+                        modalBody.innerHTML = html;
+                        new bootstrap.Modal(document.getElementById('editOrderModal')).show();
+                    });
+            });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Image preview functionality
         const imagePreviewLinks = document.querySelectorAll('.image-preview-link');
