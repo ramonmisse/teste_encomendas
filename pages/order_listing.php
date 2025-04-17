@@ -65,6 +65,7 @@ $orders = getOrders($pdo, $filters);
                         <th>Cliente</th>
                         <th>Modelo</th>
                         <th>Tipo de Metal</th>
+                        <th>Status</th>
                         <th>Data de Entrega</th>
                         <th>Imagem</th>
                         <th>Ações</th>
@@ -84,6 +85,19 @@ $orders = getOrders($pdo, $filters);
                                 <td><?php echo isset($order['client']) ? htmlspecialchars($order['client']) : 'N/A'; ?></td>
                                 <td><?php echo htmlspecialchars($order['model']); ?></td>
                                 <td><?php echo htmlspecialchars($order['metal_type']); ?></td>
+                                <td>
+                                    <?php
+                                    $statusColors = [
+                                        'Em produção' => 'bg-primary',
+                                        'Gravado' => 'bg-info',
+                                        'Separado' => 'bg-warning',
+                                        'Enviado' => 'bg-success',
+                                        'Entregue' => 'bg-secondary'
+                                    ];
+                                    $statusColor = isset($statusColors[$order['status']]) ? $statusColors[$order['status']] : 'bg-secondary';
+                                    ?>
+                                    <span class="badge <?php echo $statusColor; ?>"><?php echo htmlspecialchars($order['status']); ?></span>
+                                </td>
                                 <td><?php echo formatDate($order['delivery_date']); ?></td>
                                 <td>
                                     <?php if (isset($order['image_urls']) && !empty($order['image_urls'])): ?>
