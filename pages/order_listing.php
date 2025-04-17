@@ -283,17 +283,16 @@ $orders = getOrders($pdo, $filters);
     }
 
     function editOrder(orderId) {
-        fetch(`actions/get_order.php?id=${orderId}`)
-            .then(response => response.json())
-            .then(data => {
-                const modalBody = document.getElementById('editOrderForm');
-                // Load the order form into the modal
-                fetch(`index.php?page=order_form&id=${orderId}&modal=true`)
-                    .then(response => response.text())
-                    .then(html => {
-                        modalBody.innerHTML = html;
-                        new bootstrap.Modal(document.getElementById('editOrderModal')).show();
-                    });
+        const modalBody = document.getElementById('editOrderForm');
+        fetch(`actions/load_order_form.php?id=${orderId}`)
+            .then(response => response.text())
+            .then(html => {
+                modalBody.innerHTML = html;
+                new bootstrap.Modal(document.getElementById('editOrderModal')).show();
+            })
+            .catch(error => {
+                console.error('Error loading order form:', error);
+                alert('Erro ao carregar o formulário de edição');
             });
     }
 
