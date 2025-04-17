@@ -63,7 +63,15 @@ function getOrders($pdo, $filters = []) {
  */
 function getOrderById($pdo, $id) {
     try {
-        $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ?");
+        $stmt = $pdo->prepare("
+            SELECT o.*, 
+                   m.name as model_name,
+                   s.name as sales_rep_name
+            FROM orders o
+            JOIN product_models m ON o.model_id = m.id
+            JOIN sales_representatives s ON o.sales_representative_id = s.id
+            WHERE o.id = ?
+        ");
         $stmt->execute([$id]);
         return $stmt->fetch();
     } catch(PDOException $e) {
