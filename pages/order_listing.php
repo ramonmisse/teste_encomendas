@@ -155,13 +155,15 @@ $orders = getOrders($pdo, $filters);
                                             <?php endif; ?>
                                         <?php endif; ?>
                                         
-                                        <!-- Delete button with tooltip -->
+                                        <!-- Delete button with tooltip - only for admin -->
+                                        <?php if ($_SESSION['role'] === 'admin'): ?>
                                         <div class="tooltip-wrapper">
                                             <button class="btn btn-sm btn-outline-danger btn-icon delete-btn" data-id="<?php echo $order['id']; ?>">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                             <span class="tooltip-content">Excluir Pedido</span>
                                         </div>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

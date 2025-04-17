@@ -46,6 +46,22 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     echo "<p>Product models table created.</p>";
     
+    // Create users table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `username` varchar(50) NOT NULL,
+        `password` varchar(255) NOT NULL,
+        `role` enum('admin','user') NOT NULL DEFAULT 'user',
+        `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `username` (`username`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    echo "<p>Users table created.</p>";
+    
+    // Create default admin user
+    $adminPassword = password_hash('admin123', PASSWORD_DEFAULT);
+    $pdo->exec("INSERT IGNORE INTO `users` (username, password, role) VALUES ('admin', '$adminPassword', 'admin')");
+    
     // Create orders table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `orders` (
         `id` int(11) NOT NULL AUTO_INCREMENT,

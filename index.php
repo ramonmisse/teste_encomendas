@@ -2,6 +2,12 @@
 // Start session for state management
 session_start();
 
+// Check if user is logged in
+if (!isset($_SESSION['user_id']) && $_GET['page'] != 'login') {
+    header('Location: index.php?page=login');
+    exit;
+}
+
 // Check if the database needs to be installed
 $dbConfigFile = 'includes/config.php';
 $dbInstalled = file_exists($dbConfigFile);
@@ -17,6 +23,9 @@ if ($dbInstalled) {
     
     // Load the appropriate page content
     switch ($page) {
+        case 'login':
+            include 'pages/login.php';
+            break;
         case 'orders':
             include 'pages/order_listing.php';
             break;
@@ -24,7 +33,12 @@ if ($dbInstalled) {
             include 'pages/order_form.php';
             break;
         case 'admin':
-            include 'pages/admin_panel.php';
+            // Check if user is admin
+            if ($_SESSION['role'] === 'admin') {
+                include 'pages/admin_panel.php';
+            } else {
+                header('Location: index.php');
+            }
             break;
         default:
             include 'pages/home.php';

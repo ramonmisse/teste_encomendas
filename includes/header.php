@@ -29,8 +29,14 @@
                     </button>
                 </div>
             </div>
+        <?php if (isset($_SESSION['user_id'])): ?>
+        <div class="d-flex align-items-center">
+            <span class="me-3">Olá, <?php echo htmlspecialchars($_SESSION['username']); ?></span>
+            <a href="actions/logout.php" class="btn btn-outline-light btn-sm">Sair</a>
         </div>
-    </header>
+        <?php endif; ?>
+    </div>
+</header>
 
     <!-- Main Content -->
     <main class="container py-4">
