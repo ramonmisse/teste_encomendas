@@ -2,11 +2,38 @@
 // Get active admin tab from query string or set default to 'models'
 $adminTab = isset($_GET['admin_tab']) ? $_GET['admin_tab'] : 'models';
 
+//Check for admin permissions
+if ($_SESSION['role'] !== 'admin') {
+    header('Location: index.php');
+    exit;
+}
+
 // Get product models from database
 $models = getProductModels($pdo);
 
 // Get sales representatives from database
 $salesReps = getSalesReps($pdo);
+
+// Get companies and users
+$companies = $pdo->query("SELECT * FROM companies ORDER BY name")->fetchAll();
+$users = $pdo->query("SELECT u.*, c.name as company_name FROM users u LEFT JOIN companies c ON u.company_id = c.id ORDER BY username")->fetchAll();
+
+// Add company
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_company'])) {
+    $stmt = $pdo->prepare("INSERT INTO companies (name, email, phone) VALUES (?, ?, ?)");
+    $stmt->execute([$_POST['name'], $_POST['email'], $_POST['phone']]);
+    header('Location: index.php?page=admin_panel');
+    exit;
+}
+
+// Add user
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
+    $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("INSERT INTO users (username, password, role, company_id) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$_POST['username'], $hashedPassword, $_POST['role'], $_POST['company_id']]);
+    header('Location: index.php?page=admin_panel');
+    exit;
+}
 ?>
 
 <div class="card">
@@ -91,6 +118,7 @@ $salesReps = getSalesReps($pdo);
                 </div>
             </div>
             
+
             <!-- Sales Representatives Tab -->
             <div class="tab-pane fade <?php echo $adminTab == 'reps' ? 'show active' : ''; ?>" id="reps" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -150,6 +178,114 @@ $salesReps = getSalesReps($pdo);
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Companies Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Gerenciar Empresas</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="mb-4">
+                        <input type="hidden" name="add_company" value="1">
+                        <div class="mb-3">
+                            <label class="form-label">Nome da Empresa</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Telefone</label>
+                            <input type="text" name="phone" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Adicionar Empresa</button>
+                    </form>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($companies as $company): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($company['name']); ?></td>
+                                <td><?php echo htmlspecialchars($company['email']); ?></td>
+                                <td><?php echo htmlspecialchars($company['phone']); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Gerenciar Usuários</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="mb-4">
+                        <input type="hidden" name="add_user" value="1">
+                        <div class="mb-3">
+                            <label class="form-label">Usuário</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Usuário</label>
+                            <select name="role" class="form-select" required>
+                                <option value="user">Usuário</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Empresa</label>
+                            <select name="company_id" class="form-select">
+                                <option value="">Nenhuma</option>
+                                <?php foreach ($companies as $company): ?>
+                                <option value="<?php echo $company['id']; ?>"><?php echo htmlspecialchars($company['name']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Adicionar Usuário</button>
+                    </form>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Tipo</th>
+                                <th>Empresa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($users as $user): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                <td><?php echo $user['role'] == 'admin' ? 'Administrador' : 'Usuário'; ?></td>
+                                <td><?php echo htmlspecialchars($user['company_name'] ?? 'Nenhuma'); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>

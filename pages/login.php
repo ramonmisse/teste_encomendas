@@ -1,6 +1,8 @@
 
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
@@ -15,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
     
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt = $pdo->prepare("SELECT u.*, c.name as company_name FROM users u LEFT JOIN companies c ON u.company_id = c.id WHERE u.username = ?");
     $stmt->execute([$username]);
     $user = $stmt->fetch();
     
@@ -23,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role'] = $user['role'];
+        $_SESSION['company_id'] = $user['company_id'];
+        $_SESSION['company_name'] = $user['company_name'];
         header('Location: index.php');
         exit;
     } else {

@@ -10,6 +10,12 @@ function getOrders($pdo, $filters = []) {
     try {
         $where = [];
         $params = [];
+
+        // Add company filter if user is not admin
+        if (isset($_SESSION['role']) && $_SESSION['role'] !== 'admin' && isset($_SESSION['company_id'])) {
+            $where[] = "o.company_id = ?";
+            $params[] = $_SESSION['company_id'];
+        }
         
         // Base query
         $sql = "SELECT o.*, m.name as model, s.name as sales_rep, o.client_name as client 
