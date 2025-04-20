@@ -12,15 +12,16 @@ define('DB_NAME', 'jewelry_orders');
 
 // Create database and tables
 try {
-    echo "<h2>Setting up database...</h2>";
+    echo "<h2>Configurando banco de dados...</h2>";
     
     // Connect to MySQL server without selecting a database
     $pdo = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     // Create database if it doesn't exist
-    $pdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    echo "<p>Database created or already exists.</p>";
+    $pdo->exec("DROP DATABASE IF EXISTS `" . DB_NAME . "`");
+    $pdo->exec("CREATE DATABASE `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    echo "<p>Banco de dados criado.</p>";
     
     // Select the database
     $pdo->exec("USE `" . DB_NAME . "`");
@@ -34,7 +35,7 @@ try {
         `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "<p>Companies table created.</p>";
+    echo "<p>Tabela 'companies' criada.</p>";
 
     // Create users table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
@@ -49,11 +50,7 @@ try {
         KEY `company_id` (`company_id`),
         CONSTRAINT `users_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "<p>Users table created.</p>";
-
-    // Drop sales_representatives table if exists
-    $pdo->exec("DROP TABLE IF EXISTS `sales_representatives`");
-    echo "<p>Sales representatives table removed.</p>";
+    echo "<p>Tabela 'users' criada.</p>";
     
     // Create product_models table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `product_models` (
@@ -63,7 +60,7 @@ try {
         `description` text DEFAULT NULL,
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "<p>Product models table created.</p>";
+    echo "<p>Tabela 'product_models' criada.</p>";
     
     // Create orders table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `orders` (
@@ -79,40 +76,32 @@ try {
         `company_id` int(11) DEFAULT NULL,
         `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`),
-        KEY `sales_representative_id` (`sales_representative_id`),
+        KEY `user_id` (`user_id`),
         KEY `model_id` (`model_id`),
         KEY `company_id` (`company_id`),
         CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
         CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`model_id`) REFERENCES `product_models` (`id`),
         CONSTRAINT `orders_ibfk_3` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "<p>Orders table created.</p>";
+    echo "<p>Tabela 'orders' criada.</p>";
     
-    // Create default admin user if not exists
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE username = 'admin'");
-    $stmt->execute();
-    if (!$stmt->fetch()) {
-        $adminPassword = password_hash('admin123', PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')");
-        $stmt->execute(['admin', $adminPassword]);
-        echo "<p>Default admin user created (username: admin, password: admin123)</p>";
-    } else {
-        echo "<p>Admin user already exists.</p>";
-    }
+    // Create default admin user
+    $adminPassword = password_hash('admin123', PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')");
+    $stmt->execute(['admin', $adminPassword]);
+    echo "<p>Usuário admin criado (usuário: admin, senha: admin123)</p>";
     
     // Create uploads directory if it doesn't exist
     if (!file_exists('uploads')) {
         mkdir('uploads', 0777, true);
         chmod('uploads', 0777);
-        echo "<p>Uploads directory created.</p>";
-    } else {
-        echo "<p>Uploads directory already exists.</p>";
+        echo "<p>Diretório 'uploads' criado.</p>";
     }
     
-    echo "<h2>Database setup completed successfully!</h2>";
-    echo "<p>You can now <a href='index.php'>return to the application</a>.</p>";
+    echo "<h2>Instalação concluída com sucesso!</h2>";
+    echo "<p>Você pode agora <a href='index.php'>acessar o sistema</a>.</p>";
     
 } catch(PDOException $e) {
-    die("<h2>ERROR: Could not set up database.</h2><p>" . $e->getMessage() . "</p>");
+    die("<h2>ERRO: Não foi possível configurar o banco de dados.</h2><p>" . $e->getMessage() . "</p>");
 }
 ?>
