@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Start transaction for data integrity
     $pdo->beginTransaction();
     // Validate and sanitize inputs
-    $salesRepId = (int)$_POST['sales_representative_id'];
+    $userId = (int)$_SESSION['user_id'];
     $clientName = sanitizeInput($_POST['client_name']);
     
     // Combine date and time for delivery date
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             $stmt = $pdo->prepare("UPDATE orders SET 
-                sales_representative_id = ?, 
+                user_id = ?, 
                 client_name = ?, 
                 delivery_date = ?, 
                 model_id = ?, 

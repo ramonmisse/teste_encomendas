@@ -51,17 +51,9 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     echo "<p>Users table created.</p>";
 
-    // Create sales_representatives table
-    $pdo->exec("CREATE TABLE IF NOT EXISTS `sales_representatives` (
-        `id` int(11) NOT NULL AUTO_INCREMENT,
-        `name` varchar(100) NOT NULL,
-        `email` varchar(100) NOT NULL,
-        `phone` varchar(20) DEFAULT NULL,
-        `avatar_url` varchar(255) DEFAULT NULL,
-        PRIMARY KEY (`id`),
-        UNIQUE KEY `email` (`email`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-    echo "<p>Sales representatives table created.</p>";
+    // Drop sales_representatives table if exists
+    $pdo->exec("DROP TABLE IF EXISTS `sales_representatives`");
+    echo "<p>Sales representatives table removed.</p>";
     
     // Create product_models table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `product_models` (
@@ -76,7 +68,7 @@ try {
     // Create orders table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `orders` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
-        `sales_representative_id` int(11) NOT NULL,
+        `user_id` int(11) NOT NULL,
         `client_name` varchar(100) NOT NULL,
         `delivery_date` date NOT NULL,
         `model_id` int(11) NOT NULL,
@@ -90,7 +82,7 @@ try {
         KEY `sales_representative_id` (`sales_representative_id`),
         KEY `model_id` (`model_id`),
         KEY `company_id` (`company_id`),
-        CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`sales_representative_id`) REFERENCES `sales_representatives` (`id`),
+        CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
         CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`model_id`) REFERENCES `product_models` (`id`),
         CONSTRAINT `orders_ibfk_3` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");

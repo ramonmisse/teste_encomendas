@@ -18,10 +18,10 @@ function getOrders($pdo, $filters = []) {
         }
         
         // Base query
-        $sql = "SELECT o.*, m.name as model, s.name as sales_rep, o.client_name as client 
+        $sql = "SELECT o.*, m.name as model, u.username as sales_rep, o.client_name as client 
                FROM orders o 
                JOIN product_models m ON o.model_id = m.id 
-               JOIN sales_representatives s ON o.sales_representative_id = s.id";
+               JOIN users u ON o.user_id = u.id";
         
         // Add date filters
         if (!empty($filters['start_date'])) {

@@ -61,7 +61,7 @@ $orders = getOrders($pdo, $filters);
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Representante</th>
+                        <th>Usuário</th>
                         <th>Cliente</th>
                         <th>Modelo</th>
                         <th>Tipo de Metal</th>
