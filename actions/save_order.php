@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pdo->beginTransaction();
     // Validate and sanitize inputs
     $userId = (int)$_SESSION['user_id'];
+    $companyId = (int)$_SESSION['company_id'];
     $clientName = sanitizeInput($_POST['client_name']);
     
     // Combine date and time for delivery date
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notes = isset($_POST['notes']) ? sanitizeInput($_POST['notes']) : '';
     
     // Validate required fields
-    if (empty($salesRepId) || empty($clientName) || empty($deliveryDate) || empty($modelId) || empty($metalType)) {
+    if (empty($userId) || empty($clientName) || empty($deliveryDate) || empty($modelId) || empty($metalType) || empty($companyId)) {
         // Set error message and redirect back
         $_SESSION['error'] = 'Todos os campos obrigatórios devem ser preenchidos.';
         header('Location: ../index.php?page=home&tab=new-order');
