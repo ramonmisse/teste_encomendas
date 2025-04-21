@@ -11,9 +11,6 @@ if ($_SESSION['role'] !== 'admin') {
 // Get product models from database
 $models = getProductModels($pdo);
 
-// Get sales representatives from database
-$salesReps = getSalesReps($pdo);
-
 // Get companies and users
 $companies = $pdo->query("SELECT * FROM companies ORDER BY name")->fetchAll();
 $users = $pdo->query("SELECT u.*, c.name as company_name FROM users u LEFT JOIN companies c ON u.company_id = c.id ORDER BY username")->fetchAll();
@@ -47,12 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                 <a class="nav-link <?php echo $adminTab == 'models' ? 'active' : ''; ?>" 
                    href="index.php?page=home&tab=admin&admin_tab=models" role="tab">Modelos de Produtos</a>
             </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?php echo $adminTab == 'reps' ? 'active' : ''; ?>" 
-                   href="index.php?page=home&tab=admin&admin_tab=reps" role="tab">Representantes de Vendas</a>
-            </li>
         </ul>
-        
+
         <!-- Tab Content -->
         <div class="tab-content" id="adminTabsContent">
             <!-- Models Tab -->
@@ -63,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                         <i class="fas fa-plus-circle me-1"></i> Adicionar Modelo
                     </button>
                 </div>
-                
+
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -106,64 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                                                 <button type="button" class="btn btn-sm btn-outline-danger btn-icon delete-model-btn" 
                                                         data-id="<?php echo $model['id']; ?>" 
                                                         data-bs-toggle="modal" data-bs-target="#deleteModelModal">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-
-            <!-- Content removed -->
-                
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Avatar</th>
-                                <th>Nome</th>
-                                <th>Email</th>
-                                <th>Telefone</th>
-                                <th class="text-end">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($salesReps)): ?>
-                                <tr>
-                                    <td colspan="5" class="text-center py-4">
-                                        <p class="text-muted mb-0">Nenhum representante cadastrado. Adicione um representante para começar.</p>
-                                    </td>
-                                </tr>
-                            <?php else: ?>
-                                <?php foreach ($salesReps as $rep): ?>
-                                    <tr>
-                                        <td>
-                                            <img src="<?php echo htmlspecialchars($rep['avatar_url']); ?>" 
-                                                 alt="<?php echo htmlspecialchars($rep['name']); ?>" 
-                                                 class="avatar">
-                                        </td>
-                                        <td class="fw-medium"><?php echo htmlspecialchars($rep['name']); ?></td>
-                                        <td><?php echo htmlspecialchars($rep['email']); ?></td>
-                                        <td><?php echo htmlspecialchars($rep['phone']); ?></td>
-                                        <td class="text-end">
-                                            <div class="d-flex justify-content-end gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-icon edit-rep-btn" 
-                                                        data-id="<?php echo $rep['id']; ?>" 
-                                                        data-name="<?php echo htmlspecialchars($rep['name']); ?>" 
-                                                        data-email="<?php echo htmlspecialchars($rep['email']); ?>" 
-                                                        data-phone="<?php echo htmlspecialchars($rep['phone']); ?>" 
-                                                        data-avatar-url="<?php echo htmlspecialchars($rep['avatar_url']); ?>" 
-                                                        data-bs-toggle="modal" data-bs-target="#editRepModal">
-                                                    <i class="fas fa-pencil-alt"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger btn-icon delete-rep-btn" 
-                                                        data-id="<?php echo $rep['id']; ?>" 
-                                                        data-bs-toggle="modal" data-bs-target="#deleteRepModal">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </div>
@@ -384,113 +319,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     </div>
 </div>
 
-<!-- Add Rep Modal -->
-<div class="modal fade" id="addRepModal" tabindex="-1" aria-labelledby="addRepModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addRepModalLabel">Adicionar Novo Representante</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="actions/add_rep.php" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="repName" class="form-label">Nome</label>
-                        <input type="text" class="form-control" id="repName" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="repEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="repEmail" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="repPhone" class="form-label">Telefone</label>
-                        <input type="text" class="form-control" id="repPhone" name="phone">
-                    </div>
-                    <div class="mb-3">
-                        <label for="repAvatarUrl" class="form-label">URL do Avatar</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="repAvatarUrl" name="avatar_url">
-                            <button class="btn btn-outline-secondary" type="button">
-                                <i class="fas fa-upload"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Adicionar Representante</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Rep Modal -->
-<div class="modal fade" id="editRepModal" tabindex="-1" aria-labelledby="editRepModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editRepModalLabel">Editar Representante</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="actions/edit_rep.php" method="post">
-                <input type="hidden" name="id" id="editRepId">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="editRepName" class="form-label">Nome</label>
-                        <input type="text" class="form-control" id="editRepName" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editRepEmail" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="editRepEmail" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editRepPhone" class="form-label">Telefone</label>
-                        <input type="text" class="form-control" id="editRepPhone" name="phone">
-                    </div>
-                    <div class="mb-3">
-                        <label for="editRepAvatarUrl" class="form-label">URL do Avatar</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="editRepAvatarUrl" name="avatar_url">
-                            <button class="btn btn-outline-secondary" type="button">
-                                <i class="fas fa-upload"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Atualizar Representante</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Rep Modal -->
-<div class="modal fade" id="deleteRepModal" tabindex="-1" aria-labelledby="deleteRepModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteRepModalLabel">Confirmar Exclusão</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Tem certeza que deseja excluir este representante? Esta ação não pode ser desfeita.</p>
-                <form id="deleteRepForm" action="actions/delete_rep.php" method="post">
-                    <input type="hidden" name="id" id="deleteRepId">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" form="deleteRepForm" class="btn btn-danger">Excluir</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
-// Script to handle modal data for editing models and reps
+// Script to handle modal data for editing models
 document.addEventListener('DOMContentLoaded', function() {
     // Edit model button click
     const editModelBtns = document.querySelectorAll('.edit-model-btn');
@@ -500,47 +330,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const name = this.getAttribute('data-name');
             const imageUrl = this.getAttribute('data-image-url');
             const description = this.getAttribute('data-description');
-            
+
             document.getElementById('editModelId').value = id;
             document.getElementById('editModelName').value = name;
             document.getElementById('editModelImageUrl').value = imageUrl;
             document.getElementById('editModelDescription').value = description;
         });
     });
-    
+
     // Delete model button click
     const deleteModelBtns = document.querySelectorAll('.delete-model-btn');
     deleteModelBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             document.getElementById('deleteModelId').value = id;
-        });
-    });
-    
-    // Edit rep button click
-    const editRepBtns = document.querySelectorAll('.edit-rep-btn');
-    editRepBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            const name = this.getAttribute('data-name');
-            const email = this.getAttribute('data-email');
-            const phone = this.getAttribute('data-phone');
-            const avatarUrl = this.getAttribute('data-avatar-url');
-            
-            document.getElementById('editRepId').value = id;
-            document.getElementById('editRepName').value = name;
-            document.getElementById('editRepEmail').value = email;
-            document.getElementById('editRepPhone').value = phone;
-            document.getElementById('editRepAvatarUrl').value = avatarUrl;
-        });
-    });
-    
-    // Delete rep button click
-    const deleteRepBtns = document.querySelectorAll('.delete-rep-btn');
-    deleteRepBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const id = this.getAttribute('data-id');
-            document.getElementById('deleteRepId').value = id;
         });
     });
 });
