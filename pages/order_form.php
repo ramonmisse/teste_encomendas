@@ -9,8 +9,9 @@ if (isset($_GET['id'])) {
     $isEditing = ($order !== false);
 }
 
-// Get product models from database
+// Get product models and sales representatives from database
 $models = getProductModels($pdo);
+$salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY username")->fetchAll();
 ?>
 
 <div class="card">
