@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_NAME', 'jewelry_orders');
+define('DB_NAME', 'reve_links_controle');
 
 // Create database and tables
 try {
@@ -72,7 +72,7 @@ try {
         `metal_type` varchar(20) NOT NULL,
         `status` varchar(20) DEFAULT 'Em produção',
         `notes` text DEFAULT NULL,
-        `image_urls` text DEFAULT NULL,  
+        `image_urls` text DEFAULT NULL,
         `company_id` int(11) NOT NULL,
         `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`),
