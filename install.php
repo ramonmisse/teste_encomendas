@@ -1,4 +1,3 @@
-
 <?php
 // Enable error reporting for debugging
 ini_set('display_errors', 1);
@@ -13,19 +12,19 @@ define('DB_NAME', 'reve_links_controle');
 // Create database and tables
 try {
     echo "<h2>Configurando banco de dados...</h2>";
-    
+
     // Connect to MySQL server without selecting a database
     $pdo = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
+
     // Create database if it doesn't exist
     $pdo->exec("DROP DATABASE IF EXISTS `" . DB_NAME . "`");
     $pdo->exec("CREATE DATABASE `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     echo "<p>Banco de dados criado.</p>";
-    
+
     // Select the database
     $pdo->exec("USE `" . DB_NAME . "`");
-    
+
     // Create companies table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `companies` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -51,7 +50,7 @@ try {
         CONSTRAINT `users_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE SET NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     echo "<p>Tabela 'users' criada.</p>";
-    
+
     // Create product_models table
     $pdo->exec("CREATE TABLE IF NOT EXISTS `product_models` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -61,7 +60,7 @@ try {
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     echo "<p>Tabela 'product_models' criada.</p>";
-    
+
     // Create orders table (updated to use user_id instead of sales_rep_id)
     $pdo->exec("CREATE TABLE IF NOT EXISTS `orders` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -84,23 +83,23 @@ try {
         CONSTRAINT `orders_ibfk_3` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     echo "<p>Tabela 'orders' criada.</p>";
-    
+
     // Create default admin user
     $adminPassword = password_hash('admin123', PASSWORD_DEFAULT);
     $stmt = $pdo->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, 'admin')");
     $stmt->execute(['admin', $adminPassword]);
     echo "<p>Usuário admin criado (usuário: admin, senha: admin123)</p>";
-    
+
     // Create uploads directory if it doesn't exist
     if (!file_exists('uploads')) {
         mkdir('uploads', 0777, true);
         chmod('uploads', 0777);
         echo "<p>Diretório 'uploads' criado.</p>";
     }
-    
+
     echo "<h2>Instalação concluída com sucesso!</h2>";
     echo "<p>Você pode agora <a href='index.php'>acessar o sistema</a>.</p>";
-    
+
 } catch(PDOException $e) {
     die("<h2>ERRO: Não foi possível configurar o banco de dados.</h2><p>" . $e->getMessage() . "</p>");
 }

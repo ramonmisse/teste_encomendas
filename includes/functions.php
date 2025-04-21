@@ -16,43 +16,43 @@ function getOrders($pdo, $filters = []) {
             $where[] = "o.company_id = ?";
             $params[] = $_SESSION['company_id'];
         }
-        
+
         // Base query
         $sql = "SELECT o.*, m.name as model, u.username as created_by, o.client_name as client, c.name as company_name 
                FROM orders o 
                JOIN product_models m ON o.model_id = m.id 
                JOIN users u ON o.user_id = u.id 
                JOIN companies c ON o.company_id = c.id";
-        
+
         // Add date filters
         if (!empty($filters['start_date'])) {
             $where[] = "o.delivery_date >= ?"; 
             $params[] = $filters['start_date'];
         }
-        
+
         if (!empty($filters['end_date'])) {
             $where[] = "o.delivery_date <= ?"; 
             $params[] = $filters['end_date'];
         }
-        
+
         // Add model filter
         if (!empty($filters['model_id'])) {
             $where[] = "o.model_id = ?"; 
             $params[] = $filters['model_id'];
         }
-        
+
         // Add WHERE clause if we have filters
         if (!empty($where)) {
             $sql .= " WHERE " . implode(" AND ", $where);
         }
-        
+
         // Add order by
         $sql .= " ORDER BY o.created_at DESC";
-        
+
         // Prepare and execute the statement
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
-        
+
         return $stmt->fetchAll();
     } catch(PDOException $e) {
         // For development, show error. For production, log error and show generic message
@@ -72,11 +72,9 @@ function getOrderById($pdo, $id) {
     try {
         $stmt = $pdo->prepare("
             SELECT o.*, 
-                   m.name as model_name,
-                   s.name as sales_rep_name
+                   m.name as model_name
             FROM orders o
             JOIN product_models m ON o.model_id = m.id
-            JOIN sales_representatives s ON o.sales_representative_id = s.id
             WHERE o.id = ?
         ");
         $stmt->execute([$id]);
@@ -86,20 +84,6 @@ function getOrderById($pdo, $id) {
     }
 }
 
-/**
- * Get all sales representatives
- * 
- * @param PDO $pdo Database connection
- * @return array Array of sales representatives
- */
-function getSalesReps($pdo) {
-    try {
-        $stmt = $pdo->query("SELECT * FROM sales_representatives ORDER BY name");
-        return $stmt->fetchAll();
-    } catch(PDOException $e) {
-        return [];
-    }
-}
 
 /**
  * Get all product models
@@ -131,24 +115,24 @@ function addProductModel($pdo, $data) {
             'message' => 'Nome e URL da imagem são obrigatórios.'
         ];
     }
-    
+
     try {
         // Check if model with same name already exists
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM product_models WHERE name = ?");
         $stmt->execute([$data['name']]);
         $count = $stmt->fetchColumn();
-        
+
         if ($count > 0) {
             return [
                 'status' => 'error',
                 'message' => 'Um modelo com este nome já existe.'
             ];
         }
-        
+
         // Insert new model
         $stmt = $pdo->prepare("INSERT INTO product_models (name, image_url, description) VALUES (?, ?, ?)");
         $stmt->execute([$data['name'], $data['image_url'], $data['description'] ?? '']);
-        
+
         return [
             'status' => 'success',
             'message' => 'Modelo adicionado com sucesso!',
@@ -163,71 +147,6 @@ function addProductModel($pdo, $data) {
     }
 }
 
-/**
- * Add a new sales representative to the database
- * 
- * @param PDO $pdo Database connection
- * @param array $data Rep data (name, email, phone, avatar_url)
- * @return array Result with status and message
- */
-function addSalesRep($pdo, $data) {
-    // Validate required fields
-    if (empty($data['name']) || empty($data['email'])) {
-        return [
-            'status' => 'error',
-            'message' => 'Nome e email são obrigatórios.'
-        ];
-    }
-    
-    // Validate email format
-    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-        return [
-            'status' => 'error',
-            'message' => 'Formato de email inválido.'
-        ];
-    }
-    
-    // Generate avatar URL if not provided
-    if (empty($data['avatar_url'])) {
-        $seed = strtolower(str_replace(' ', '', $data['name']));
-        $data['avatar_url'] = "https://api.dicebear.com/7.x/avataaars/svg?seed=$seed";
-    }
-    
-    try {
-        // Check if email already exists
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM sales_representatives WHERE email = ?");
-        $stmt->execute([$data['email']]);
-        $count = $stmt->fetchColumn();
-        
-        if ($count > 0) {
-            return [
-                'status' => 'error',
-                'message' => 'Este email já está cadastrado para outro representante.'
-            ];
-        }
-        
-        // Insert new sales representative
-        $stmt = $pdo->prepare("INSERT INTO sales_representatives (name, email, phone, avatar_url) VALUES (?, ?, ?, ?)");
-        $stmt->execute([
-            $data['name'], 
-            $data['email'], 
-            $data['phone'] ?? '', 
-            $data['avatar_url']
-        ]);
-        
-        return [
-            'status' => 'success',
-            'message' => 'Representante adicionado com sucesso!',
-            'id' => $pdo->lastInsertId()
-        ];
-    } catch (PDOException $e) {
-        error_log('Error adding sales representative: ' . $e->getMessage());
-        return [
-            'status' => 'error',
-            'message' => 'Erro ao adicionar representante: ' . $e->getMessage()
-        ];
-    }
-}
 
 /**
  * Format date for display
@@ -268,7 +187,7 @@ function validatePhone($phone) {
     if (empty($phone)) {
         return true;
     }
-    
+
     // Basic phone validation - adjust regex as needed for your country format
     return preg_match('/^\+?[0-9\(\)\s\-]{8,20}$/', $phone);
 }

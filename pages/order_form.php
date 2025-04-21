@@ -9,9 +9,6 @@ if (isset($_GET['id'])) {
     $isEditing = ($order !== false);
 }
 
-// Get sales representatives from database
-$salesReps = getSalesReps($pdo);
-
 // Get product models from database
 $models = getProductModels($pdo);
 ?>

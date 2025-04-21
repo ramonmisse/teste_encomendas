@@ -3,7 +3,8 @@
 $filters = [
     'start_date' => isset($_GET['start_date']) ? $_GET['start_date'] : '',
     'end_date' => isset($_GET['end_date']) ? $_GET['end_date'] : '',
-    'model_id' => isset($_GET['model_id']) ? $_GET['model_id'] : ''
+    'model_id' => isset($_GET['model_id']) ? $_GET['model_id'] : '',
+    'company_id' => isset($_SESSION['company_id']) ? $_SESSION['company_id'] : null // Added company filter
 ];
 
 // Fetch orders from database with filters
