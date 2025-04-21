@@ -119,14 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
             </div>
             
 
-            <!-- Sales Representatives Tab -->
-            <div class="tab-pane fade <?php echo $adminTab == 'reps' ? 'show active' : ''; ?>" id="reps" role="tabpanel">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="h5 mb-0">Representantes de Vendas</h3>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRepModal">
-                        <i class="fas fa-plus-circle me-1"></i> Adicionar Representante
-                    </button>
-                </div>
+            <!-- Content removed -->
                 
                 <div class="table-responsive">
                     <table class="table table-hover">

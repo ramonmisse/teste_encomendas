@@ -62,7 +62,7 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     echo "<p>Tabela 'product_models' criada.</p>";
     
-    // Create orders table
+    // Create orders table (updated to use user_id instead of sales_rep_id)
     $pdo->exec("CREATE TABLE IF NOT EXISTS `orders` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `user_id` int(11) NOT NULL,
