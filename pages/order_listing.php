@@ -61,7 +61,7 @@ $orders = getOrders($pdo, $filters);
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Usuário</th>
+                        <th>Criado por</th>
                         <th>Cliente</th>
                         <th>Modelo</th>
                         <th>Tipo de Metal</th>
@@ -81,7 +81,7 @@ $orders = getOrders($pdo, $filters);
                     <?php else: ?>
                         <?php foreach ($orders as $order): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($order['sales_rep']); ?></td>
+                                <td><?php echo htmlspecialchars($order['username']); ?></td>
                                 <td><?php echo isset($order['client']) ? htmlspecialchars($order['client']) : 'N/A'; ?></td>
                                 <td><?php echo htmlspecialchars($order['model']); ?></td>
                                 <td><?php echo htmlspecialchars($order['metal_type']); ?></td>
@@ -130,7 +130,7 @@ $orders = getOrders($pdo, $filters);
                                             </button>
                                             <span class="tooltip-content">Ver Pedido</span>
                                         </div>
-                                        
+
                                         <!-- Edit button with tooltip -->
                                         <div class="tooltip-wrapper">
                                             <button type="button" class="btn btn-sm btn-outline-secondary btn-icon" onclick="editOrder(<?php echo $order['id']; ?>)">
@@ -138,7 +138,7 @@ $orders = getOrders($pdo, $filters);
                                             </button>
                                             <span class="tooltip-content">Editar Pedido</span>
                                         </div>
-                                        
+
                                         <?php if (isset($order['image_urls']) && !empty($order['image_urls'])): ?>
                                             <?php 
                                                 $imageUrlsArray = json_decode($order['image_urls'], true);
@@ -154,7 +154,7 @@ $orders = getOrders($pdo, $filters);
                                             </div>
                                             <?php endif; ?>
                                         <?php endif; ?>
-                                        
+
                                         <!-- Delete button with tooltip - only for admin -->
                                         <?php if ($_SESSION['role'] === 'admin'): ?>
                                         <div class="tooltip-wrapper">
@@ -257,7 +257,7 @@ $orders = getOrders($pdo, $filters);
                 modalBody.innerHTML = `
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Representante:</strong> ${data.sales_rep_name}</p>
+                            <p><strong>Criado por:</strong> ${data.username}</p>
                             <p><strong>Cliente:</strong> ${data.client_name}</p>
                             <p><strong>Modelo:</strong> ${data.model_name}</p>
                         </div>
@@ -304,7 +304,7 @@ $orders = getOrders($pdo, $filters);
         const previewImage = document.getElementById('previewImage');
         const downloadImageLink = document.getElementById('downloadImageLink');
         const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
-        
+
         imagePreviewLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -314,14 +314,14 @@ $orders = getOrders($pdo, $filters);
                 imagePreviewModal.show();
             });
         });
-        
+
         // No need for special handling of view and edit buttons - let them work with their native href behavior
-        
+
         // Delete confirmation functionality
         const deleteButtons = document.querySelectorAll('.delete-btn');
         const deleteForm = document.getElementById('deleteForm');
         const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-        
+
         deleteButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const orderId = this.getAttribute('data-id');
@@ -329,18 +329,18 @@ $orders = getOrders($pdo, $filters);
                 deleteConfirmModal.show();
             });
         });
-        
+
         // Tooltip hover functionality
         const tooltipWrappers = document.querySelectorAll('.tooltip-wrapper');
-        
+
         tooltipWrappers.forEach(wrapper => {
             const tooltip = wrapper.querySelector('.tooltip-content');
-            
+
             wrapper.addEventListener('mouseenter', function() {
                 tooltip.style.visibility = 'visible';
                 tooltip.style.opacity = '1';
             });
-            
+
             wrapper.addEventListener('mouseleave', function() {
                 tooltip.style.visibility = 'hidden';
                 tooltip.style.opacity = '0';

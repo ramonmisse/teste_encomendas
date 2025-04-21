@@ -38,19 +38,8 @@ $models = getProductModels($pdo);
                 <?php endif; ?>
                 
                 <div class="row mb-4">
-                    <!-- Sales Representative -->
-                    <div class="col-md-6 mb-3">
-                        <label for="salesRepresentative" class="form-label">Representante de Vendas</label>
-                        <select class="form-select" id="salesRepresentative" name="sales_representative_id" required>
-                            <option value="" selected disabled>Selecione um representante</option>
-                            <?php foreach ($salesReps as $rep): ?>
-                                <option value="<?php echo $rep['id']; ?>" <?php echo ($isEditing && $order['sales_representative_id'] == $rep['id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($rep['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <div class="invalid-feedback">Por favor, selecione um representante.</div>
-                    </div>
+                    <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
+                    <input type="hidden" name="company_id" value="<?php echo $_SESSION['company_id']; ?>">
                     
                     <!-- Client Name -->
                     <div class="col-md-6 mb-3">
