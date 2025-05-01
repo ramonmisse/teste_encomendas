@@ -1,4 +1,3 @@
-
 <?php
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
@@ -20,25 +19,20 @@ $models = getProductModels($pdo);
 
 <form id="editOrderForm" action="actions/save_order.php" method="post" enctype="multipart/form-data">
     <input type="hidden" name="id" value="<?php echo $order['id']; ?>">
-    
+
     <div class="row mb-3">
         <div class="col-md-6">
-            <label for="sales_representative_id" class="form-label">Representante</label>
-            <select class="form-select" id="sales_representative_id" name="sales_representative_id" required>
-                <?php foreach ($salesReps as $rep): ?>
-                    <option value="<?php echo $rep['id']; ?>" <?php echo $order['sales_representative_id'] == $rep['id'] ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($rep['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <label class="form-label">Representante</label>
+            <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SESSION['username']); ?>" readonly>
+            <input type="hidden" name="sales_representative_id" value="<?php echo $_SESSION['user_id']; ?>">
         </div>
-        
+
         <div class="col-md-6">
             <label for="client_name" class="form-label">Cliente</label>
             <input type="text" class="form-control" id="client_name" name="client_name" value="<?php echo htmlspecialchars($order['client_name']); ?>" required>
         </div>
     </div>
-    
+
     <div class="row mb-3">
         <div class="col-md-6">
             <label for="model_id" class="form-label">Modelo</label>
@@ -50,7 +44,7 @@ $models = getProductModels($pdo);
                 <?php endforeach; ?>
             </select>
         </div>
-        
+
         <div class="col-md-6">
             <label for="metal_type" class="form-label">Tipo de Metal</label>
             <input type="text" class="form-control" id="metal_type" name="metal_type" value="<?php echo htmlspecialchars($order['metal_type']); ?>" required>
