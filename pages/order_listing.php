@@ -4,8 +4,14 @@ $filters = [
     'start_date' => isset($_GET['start_date']) ? $_GET['start_date'] : '',
     'end_date' => isset($_GET['end_date']) ? $_GET['end_date'] : '',
     'model_id' => isset($_GET['model_id']) ? $_GET['model_id'] : '',
-    'company_id' => isset($_SESSION['company_id']) ? $_SESSION['company_id'] : null // Added company filter
+    'company_id' => ($_SESSION['role'] === 'admin' && isset($_GET['company_id'])) ? $_GET['company_id'] : $_SESSION['company_id']
 ];
+
+// Get companies for admin filter
+$companies = [];
+if ($_SESSION['role'] === 'admin') {
+    $companies = $pdo->query("SELECT * FROM companies ORDER BY name")->fetchAll();
+}
 
 // Fetch orders from database with filters
 $orders = getOrders($pdo, $filters);
@@ -39,6 +45,19 @@ $orders = getOrders($pdo, $filters);
                     ?>
                 </select>
             </div>
+            <?php if ($_SESSION['role'] === 'admin'): ?>
+            <div class="col-md-3">
+                <label for="company_id" class="form-label">Empresa</label>
+                <select class="form-select" id="company_id" name="company_id">
+                    <option value="">Todas as Empresas</option>
+                    <?php foreach ($companies as $company): ?>
+                        <option value="<?php echo $company['id']; ?>" <?php echo ($filters['company_id'] == $company['id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($company['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php endif; ?>
             <div class="col-md-2 d-flex align-items-end">
                 <div class="d-flex gap-2 w-100">
                     <button type="submit" class="btn btn-primary flex-grow-1">
