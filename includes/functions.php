@@ -18,7 +18,7 @@ function getOrders($pdo, $filters = []) {
         }
 
         // Base query
-        $sql = "SELECT o.*, m.name as model, u.username as created_by, o.client_name as client, c.name as company_name 
+        $sql = "SELECT o.*, m.name as model, u.username, o.client_name as client, c.name as company_name 
                FROM orders o 
                JOIN product_models m ON o.model_id = m.id 
                JOIN users u ON o.user_id = u.id
