@@ -1,6 +1,12 @@
 <?php
+session_start();
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    die('Usuário não está logado');
+}
 
 if (!isset($_GET['id'])) {
     die('ID não fornecido');
@@ -23,8 +29,8 @@ $models = getProductModels($pdo);
     <div class="row mb-3">
         <div class="col-md-6">
             <label class="form-label">Representante</label>
-            <input type="text" class="form-control" value="<?php echo htmlspecialchars($_SESSION['username']); ?>" readonly>
-            <input type="hidden" name="sales_representative_id" value="<?php echo $_SESSION['user_id']; ?>">
+            <input type="text" class="form-control" value="<?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : ''; ?>" readonly>
+            <input type="hidden" name="sales_representative_id" value="<?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : ''; ?>">
         </div>
 
         <div class="col-md-6">
