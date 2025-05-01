@@ -97,6 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $pdo->commit();
             $_SESSION['success'] = 'Pedido atualizado com sucesso!';
+            
+            // Add JavaScript confirmation
+            echo "<script>
+                alert('Pedido atualizado com sucesso!');
+                window.location.href = '../index.php?page=home&tab=orders';
+            </script>";
+            exit;
         } else {
             // Insert new order
             $stmt = $pdo->prepare("INSERT INTO orders 
@@ -105,7 +112,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$userId, $companyId, $clientName, $deliveryDateTime, $modelId, $metalType, $status, $notes, $imageUrlsJson]);
             
             $pdo->commit();
-            $_SESSION['success'] = 'Pedido criado com sucesso!';
+            $_SESSION['success'] = 'Pedido incluído com sucesso!';
+            
+            // Add JavaScript confirmation
+            echo "<script>
+                alert('Pedido incluído com sucesso!');
+                window.location.href = '../index.php?page=home&tab=orders';
+            </script>";
+            exit;
         }
     } catch (PDOException $e) {
         $pdo->rollBack();
