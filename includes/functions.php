@@ -41,6 +41,12 @@ function getOrders($pdo, $filters = []) {
             $params[] = $filters['model_id'];
         }
 
+        // Add status filter
+        if (!empty($filters['status'])) {
+            $where[] = "o.status = ?";
+            $params[] = $filters['status'];
+        }
+
         // Add WHERE clause if we have filters
         if (!empty($where)) {
             $sql .= " WHERE " . implode(" AND ", $where);

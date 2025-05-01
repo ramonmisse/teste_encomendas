@@ -4,6 +4,7 @@ $filters = [
     'start_date' => isset($_GET['start_date']) ? $_GET['start_date'] : '',
     'end_date' => isset($_GET['end_date']) ? $_GET['end_date'] : '',
     'model_id' => isset($_GET['model_id']) ? $_GET['model_id'] : '',
+    'status' => isset($_GET['status']) ? $_GET['status'] : '',
     'company_id' => ($_SESSION['role'] === 'admin' && isset($_GET['company_id'])) ? $_GET['company_id'] : $_SESSION['company_id']
 ];
 
@@ -43,6 +44,17 @@ $orders = getOrders($pdo, $filters);
                         echo "<option value=\"{$model['id']}\" {$selected}>{$model['name']}</option>";
                     }
                     ?>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" id="status" name="status">
+                    <option value="">Todos os Status</option>
+                    <option value="Em produção" <?php echo ($filters['status'] == 'Em produção') ? 'selected' : ''; ?>>Em produção</option>
+                    <option value="Gravado" <?php echo ($filters['status'] == 'Gravado') ? 'selected' : ''; ?>>Gravado</option>
+                    <option value="Separado" <?php echo ($filters['status'] == 'Separado') ? 'selected' : ''; ?>>Separado</option>
+                    <option value="Enviado" <?php echo ($filters['status'] == 'Enviado') ? 'selected' : ''; ?>>Enviado</option>
+                    <option value="Entregue" <?php echo ($filters['status'] == 'Entregue') ? 'selected' : ''; ?>>Entregue</option>
                 </select>
             </div>
             <?php if ($_SESSION['role'] === 'admin'): ?>
