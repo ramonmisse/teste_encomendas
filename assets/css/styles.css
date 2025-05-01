@@ -1,204 +1,158 @@
+/* Custom styles for the jewelry order management system */
 
-:root {
-    --primary-color: #0097FB;
-    --secondary-color: #4CAF50;
-    --background-color: #f5f7fa;
-    --text-color: #333333;
-    --border-color: #e2e8f0;
-    --hover-color: #0080d4;
-}
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
+/* General styles */
 body {
-    font-family: 'Inter', Arial, sans-serif;
-    line-height: 1.6;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  background-color: #f8f9fa;
+  color: #212529;
 }
 
-header {
-    background-color: var(--primary-color);
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-nav a:hover {
-    background-color: var(--hover-color);
-}
-
-main {
-    padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    width: 100%;
-    flex: 1;
-}
-
+/* Card styles */
 .card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    margin-bottom: 1.5rem;
-    overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .card-header {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    background-color: #f8fafc;
+  background-color: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.card-body {
-    padding: 1.5rem;
-}
-
+/* Table styles */
 .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  border-radius: 0.375rem;
+  overflow: hidden;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 1rem;
+.table th {
+  font-weight: 600;
+  color: #495057;
 }
 
-.table th,
-.table td {
-    padding: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
+/* Image preview */
+.image-preview {
+  max-height: 150px;
+  object-fit: contain;
+  border-radius: 0.375rem;
 }
 
-.btn {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    font-weight: 500;
+.image-thumbnail {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 0.25rem;
+  cursor: pointer;
 }
 
-.btn:hover {
-    transform: translateY(-1px);
+/* Hover card for image preview */
+.hover-card {
+  position: relative;
+  display: inline-block;
 }
 
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
+.hover-card-content {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem;
+  width: 300px;
 }
 
-.btn-primary:hover {
-    background-color: var(--hover-color);
+.hover-card:hover .hover-card-content {
+  display: block;
 }
 
-.form-group {
-    margin-bottom: 1rem;
+/* Action buttons */
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
 }
 
-.form-control {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    transition: border-color 0.3s;
+/* Form styles */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
 }
 
-.form-control:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(0,151,251,0.1);
+/* Model selection cards */
+.model-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
 }
 
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    margin: -0.5rem;
+/* Status badge styles */
+.badge {
+  padding: 0.35em 0.65em;
+  font-size: 0.75em;
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
 }
 
-.col {
-    flex: 1;
-    padding: 0.5rem;
-    min-width: 250px;
+.model-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-@media (max-width: 768px) {
-    main {
-        padding: 1rem;
-    }
-    
-    .card-header {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .btn-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .table th,
-    .table td {
-        padding: 0.5rem;
-    }
+.model-card.selected {
+  border-color: #0d6efd;
 }
 
-@media (max-width: 480px) {
-    nav ul {
-        flex-direction: column;
-    }
-    
-    nav a {
-        display: block;
-        text-align: center;
-    }
+.model-image {
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  margin-bottom: 0.5rem;
 }
 
+/* Avatar */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Dialog/Modal styles */
+.modal-header {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+}
+
+/* Tooltip */
 .tooltip-wrapper {
-    position: relative;
+  position: relative;
 }
 
-.tooltip-content {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.5rem;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.3s;
-    white-space: nowrap;
-    z-index: 1000;
+.tooltip-wrapper .tooltip-content {
+  visibility: hidden;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.tooltip-wrapper:hover .tooltip-content {
+  visibility: visible;
 }

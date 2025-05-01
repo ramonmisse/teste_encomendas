@@ -17,12 +17,12 @@ function getOrders($pdo, $filters = []) {
             $params[] = $_SESSION['company_id'];
         }
 
-        // Base query -  updated to include username
+        // Base query
         $sql = "SELECT o.*, m.name as model, u.username as created_by, o.client_name as client, c.name as company_name 
                FROM orders o 
-               LEFT JOIN product_models m ON o.model_id = m.id 
-               LEFT JOIN users u ON o.user_id = u.id 
-               LEFT JOIN companies c ON o.company_id = c.id";
+               JOIN product_models m ON o.model_id = m.id 
+               JOIN users u ON o.user_id = u.id 
+               JOIN companies c ON o.company_id = c.id";
 
         // Add date filters
         if (!empty($filters['start_date'])) {

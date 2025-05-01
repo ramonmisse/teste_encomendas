@@ -5,8 +5,8 @@ error_reporting(E_ALL);
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_USER', 'reve_controle'); // Change to your database username
+define('DB_PASS', 'PfHMnqmM4#yci@HJ'); // Change to your database password
 define('DB_NAME', 'reve_links_controle');
 
 // Create database and tables

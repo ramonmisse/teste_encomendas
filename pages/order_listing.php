@@ -82,7 +82,7 @@ $orders = getOrders($pdo, $filters);
                     <?php else: ?>
                         <?php foreach ($orders as $order): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($order['username'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars($order['username']); ?></td>
                                 <td><?php echo isset($order['client']) ? htmlspecialchars($order['client']) : 'N/A'; ?></td>
                                 <td><?php echo htmlspecialchars($order['model']); ?></td>
                                 <td><?php echo htmlspecialchars($order['metal_type']); ?></td>

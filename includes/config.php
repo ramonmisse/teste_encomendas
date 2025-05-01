@@ -5,9 +5,9 @@ error_reporting(E_ALL);
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root'); // Change to your database username
-define('DB_PASS', ''); // Change to your database password
-define('DB_NAME', 'jewelry_orders');
+define('DB_USER', 'reve_controle'); // Change to your database username
+define('DB_PASS', 'PfHMnqmM4#yci@HJ'); // Change to your database password
+define('DB_NAME', 'reve_links_controle');
 
 // Create database if it doesn't exist
 try {
