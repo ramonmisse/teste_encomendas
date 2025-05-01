@@ -201,4 +201,20 @@ function validatePhone($phone) {
 function validateUrl($url) {
     return filter_var($url, FILTER_VALIDATE_URL) !== false;
 }
+
+/**
+ * Get all sales representatives from the database
+ * 
+ * @param PDO $pdo Database connection
+ * @return array Array of sales representatives
+ */
+function getSalesReps($pdo) {
+    try {
+        $stmt = $pdo->query("SELECT * FROM sales_representatives ORDER BY name");
+        return $stmt->fetchAll();
+    } catch(PDOException $e) {
+        error_log('Error fetching sales representatives: ' . $e->getMessage());
+        return [];
+    }
+}
 ?>
