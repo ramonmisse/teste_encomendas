@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "php-8.2", "web"]
+modules = ["nodejs-20", "php-8.2", "web", "postgresql-16"]
 run = "npm run dev"
 
 [nix]
@@ -6,3 +6,19 @@ channel = "stable-24_05"
 
 [deployment]
 run = ["sh", "-c", "npm run dev"]
+
+[workflows]
+runButton = "Run PHP"
+
+[[workflows.workflow]]
+name = "Run PHP"
+author = 42079007
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "php -S 0.0.0.0:5000"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
