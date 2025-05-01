@@ -98,19 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->commit();
             $_SESSION['success'] = 'Pedido atualizado com sucesso!';
             
-            // Add beautiful confirmation
+            // Add JavaScript confirmation
             echo "<script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sucesso!',
-                    text: 'Pedido atualizado com sucesso!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = '../index.php?page=home&tab=orders';
-                    }
-                });
+                alert('Pedido atualizado com sucesso!');
+                window.location.href = '../index.php?page=home&tab=orders';
             </script>";
             exit;
         } else {
@@ -123,19 +114,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->commit();
             $_SESSION['success'] = 'Pedido incluído com sucesso!';
             
-            // Add beautiful confirmation
+            // Add JavaScript confirmation
             echo "<script>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sucesso!',
-                    text: 'Pedido incluído com sucesso!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = '../index.php?page=home&tab=orders';
-                    }
-                });
+                alert('Pedido incluído com sucesso!');
+                window.location.href = '../index.php?page=home&tab=orders';
             </script>";
             exit;
         }
