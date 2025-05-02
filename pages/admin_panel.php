@@ -368,6 +368,95 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                         <!-- Variations will be loaded here -->
                     </div>
                 </div>
+
+                <script>
+                    // Handle variation form submission
+                    document.getElementById('variationForm').addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        
+                        const formData = new FormData(this);
+                        const modelId = document.getElementById('variationModelId').value;
+                        
+                        try {
+                            const response = await fetch('actions/add_variation.php', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            if(response.ok) {
+                                // Clear form
+                                this.reset();
+                                
+                                // Reload variations list
+                                const variationsResponse = await fetch(`actions/get_variations.php?model_id=${modelId}`);
+                                const variations = await variationsResponse.json();
+                                const variationsList = document.getElementById('variationsList');
+                                
+                                if(variations && variations.length > 0) {
+                                    variationsList.innerHTML = variations.map(variation => `
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card h-100">
+                                                <img src="${variation.image_url || 'https://via.placeholder.com/150'}" 
+                                                     class="card-img-top" alt="${variation.name}"
+                                                     onerror="this.src='https://via.placeholder.com/150'">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">${variation.name}</h6>
+                                                    <p class="card-text small">${variation.description || ''}</p>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <button class="btn btn-outline-danger delete-variation" data-id="${variation.id}">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('');
+                                    
+                                    // Add delete handlers to new variation cards
+                                    addDeleteHandlers();
+                                } else {
+                                    variationsList.innerHTML = '<p class="text-muted">Nenhuma variação encontrada.</p>';
+                                }
+                                
+                                // Show success message
+                                alert('Variação adicionada com sucesso!');
+                            }
+                        } catch(error) {
+                            console.error('Error:', error);
+                            alert('Erro ao adicionar variação');
+                        }
+                    });
+
+                    // Function to add delete handlers
+                    function addDeleteHandlers() {
+                        document.querySelectorAll('.delete-variation').forEach(deleteBtn => {
+                            deleteBtn.addEventListener('click', async function() {
+                                if(confirm('Tem certeza que deseja excluir esta variação?')) {
+                                    const variationId = this.getAttribute('data-id');
+                                    try {
+                                        const response = await fetch('actions/delete_variation.php', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                            },
+                                            body: `id=${variationId}`
+                                        });
+                                        if(response.ok) {
+                                            this.closest('.col-md-4').remove();
+                                            if(document.querySelectorAll('.col-md-4').length === 0) {
+                                                document.getElementById('variationsList').innerHTML = 
+                                                    '<p class="text-muted">Nenhuma variação encontrada.</p>';
+                                            }
+                                        }
+                                    } catch(error) {
+                                        console.error('Error:', error);
+                                        alert('Erro ao excluir variação');
+                                    }
+                                }
+                            });
+                        });
+                    }
+                </script>
             </div>
         </div>
     </div>
