@@ -10,15 +10,20 @@ if(isset($_GET['model_id'])) {
         $stmt->execute([$modelId]);
         $variations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // Ensure proper encoding of special characters
-        array_walk_recursive($variations, function(&$item) {
-            $item = htmlspecialchars_decode($item);
-        });
-        
-        echo json_encode($variations, JSON_UNESCAPED_UNICODE);
+        if (empty($variations)) {
+            echo json_encode([]);
+        } else {
+            // Ensure proper encoding of special characters
+            array_walk_recursive($variations, function(&$item) {
+                if (is_string($item)) {
+                    $item = htmlspecialchars_decode($item, ENT_QUOTES);
+                }
+            });
+            echo json_encode($variations, JSON_UNESCAPED_UNICODE);
+        }
     } catch(PDOException $e) {
         http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);
     }
 } else {
     http_response_code(400);
