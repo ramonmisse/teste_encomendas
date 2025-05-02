@@ -94,7 +94,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#addVariationModal">
                                                     <i class="fas fa-layer-group"></i>
-                                                </button>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-info view-variations-btn"
+                                                    data-id="<?php echo $model['id']; ?>"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#viewVariationsModal">
+                                                <i class="fas fa-list"></i>
+                                            </button>
                                                 <button type="button" class="btn btn-sm btn-outline-primary edit-model-btn" 
                                                         data-id="<?php echo $model['id']; ?>" 
                                                         data-name="<?php echo htmlspecialchars($model['name']); ?>" 
@@ -395,6 +401,79 @@ document.addEventListener('DOMContentLoaded', function() {
             const modelId = this.getAttribute('data-id');
             document.getElementById('variationModelId').value = modelId;
         });
+    });
+});
+</script>
+<!-- View Variations Modal -->
+<div class="modal fade" id="viewVariationsModal" tabindex="-1" aria-labelledby="viewVariationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewVariationsModalLabel">Variações do Modelo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="variationsList" class="row">
+                    <!-- Variations will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.view-variations-btn').forEach(button => {
+    button.addEventListener('click', async function() {
+        const modelId = this.getAttribute('data-id');
+        try {
+            const response = await fetch(`actions/get_variations.php?model_id=${modelId}`);
+            const variations = await response.json();
+            const variationsList = document.getElementById('variationsList');
+            variationsList.innerHTML = '';
+            
+            variations.forEach(variation => {
+                const card = document.createElement('div');
+                card.className = 'col-md-4 mb-3';
+                card.innerHTML = `
+                    <div class="card">
+                        <img src="${variation.image_url}" class="card-img-top" alt="${variation.name}">
+                        <div class="card-body">
+                            <h5 class="card-title">${variation.name}</h5>
+                            <p class="card-text">${variation.description || ''}</p>
+                            <button class="btn btn-sm btn-danger delete-variation" data-id="${variation.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                variationsList.appendChild(card);
+            });
+            
+            // Add delete variation handlers
+            document.querySelectorAll('.delete-variation').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    if(confirm('Tem certeza que deseja excluir esta variação?')) {
+                        const variationId = this.getAttribute('data-id');
+                        try {
+                            const response = await fetch('actions/delete_variation.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                                body: `id=${variationId}`
+                            });
+                            if(response.ok) {
+                                this.closest('.col-md-4').remove();
+                            }
+                        } catch(error) {
+                            console.error('Error:', error);
+                        }
+                    }
+                });
+            });
+        } catch(error) {
+            console.error('Error:', error);
+        }
     });
 });
 </script>

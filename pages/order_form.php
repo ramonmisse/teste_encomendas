@@ -93,6 +93,13 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
                 </div>
 
                     
+                    <div class="mb-3" id="variationSelect" style="display: none;">
+                        <label class="form-label">Variação do Modelo</label>
+                        <select class="form-select" name="variation_id">
+                            <option value="">Selecione uma variação</option>
+                        </select>
+                    </div>
+                    
                     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
                         <?php foreach ($models as $model): ?>
                             <div class="col">
@@ -198,7 +205,29 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
             // Add selected class to clicked card
             this.classList.add('selected');
             // Set model ID in hidden input
-            modelInput.value = this.getAttribute('data-model-id');
+            const modelId = this.getAttribute('data-model-id');
+            modelInput.value = modelId;
+            
+            // Load variations for selected model
+            const variationSelect = document.getElementById('variationSelect');
+            const variationSelectElement = variationSelect.querySelector('select');
+            
+            try {
+                const response = await fetch(`actions/get_variations.php?model_id=${modelId}`);
+                const variations = await response.json();
+                
+                if(variations.length > 0) {
+                    variationSelectElement.innerHTML = '<option value="">Selecione uma variação</option>' +
+                        variations.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+                    variationSelect.style.display = 'block';
+                } else {
+                    variationSelect.style.display = 'none';
+                    variationSelectElement.innerHTML = '<option value="">Selecione uma variação</option>';
+                }
+            } catch(error) {
+                console.error('Error:', error);
+                variationSelect.style.display = 'none';
+            }
         });
     });
     
