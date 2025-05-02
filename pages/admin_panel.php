@@ -347,7 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="variationImageUrl" class="form-label">URL da Imagem</label>
-                                <input type="text" class="form-control" id="variationImageUrl" name="image_url">
+                                <input type="text" class="form-control" id="variationImageUrl" name="image_url" required>
                             </div>
                         </div>
                     </div>
@@ -373,25 +373,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                     // Handle variation form submission
                     document.getElementById('variationForm').addEventListener('submit', async function(e) {
                         e.preventDefault();
-                        
+
                         const formData = new FormData(this);
                         const modelId = document.getElementById('variationModelId').value;
-                        
+                        const nameInput = this.querySelector('input[name="name"]');
+                        const imageUrlInput = this.querySelector('input[name="image_url"]');
+
+                        // Validate required fields
+                        if (!nameInput.value.trim() || !imageUrlInput.value.trim()) {
+                            alert('Por favor, preencha todos os campos obrigatórios.');
+                            return;
+                        }
+
                         try {
                             const response = await fetch('actions/add_variation.php', {
                                 method: 'POST',
                                 body: formData
                             });
-                            
+
                             if(response.ok) {
                                 // Clear form
                                 this.reset();
-                                
+
                                 // Reload variations list
                                 const variationsResponse = await fetch(`actions/get_variations.php?model_id=${modelId}`);
                                 const variations = await variationsResponse.json();
                                 const variationsList = document.getElementById('variationsList');
-                                
+
                                 if(variations && variations.length > 0) {
                                     variationsList.innerHTML = variations.map(variation => `
                                         <div class="col-md-4 mb-3">
@@ -411,13 +419,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                                             </div>
                                         </div>
                                     `).join('');
-                                    
+
                                     // Add delete handlers to new variation cards
                                     addDeleteHandlers();
                                 } else {
                                     variationsList.innerHTML = '<p class="text-muted">Nenhuma variação encontrada.</p>';
                                 }
-                                
+
                                 // Show success message
                                 alert('Variação adicionada com sucesso!');
                             }
