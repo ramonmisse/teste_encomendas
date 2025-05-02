@@ -409,37 +409,41 @@ document.addEventListener('DOMContentLoaded', function() {
             const modelName = this.getAttribute('data-model-name');
             document.getElementById('variationModelId').value = modelId;
             document.getElementById('variationsModalLabel').textContent = `Gerenciar Variações - ${modelName}`;
-            
+            const variationsList = document.getElementById('variationsList');
+
             // Load existing variations
             try {
                 const response = await fetch(`actions/get_variations.php?model_id=${modelId}`);
                 const variations = await response.json();
-                const variationsList = document.getElementById('variationsList');
+
+                // Clear existing variations
                 variationsList.innerHTML = '';
-                
-                variations.forEach(variation => {
-                    const card = document.createElement('div');
-                    card.className = 'col-md-4 mb-3';
-                    card.innerHTML = `
-                        <div class="card h-100">
-                            <img src="${variation.image_url}" class="card-img-top" alt="${variation.name}"
-                                 onerror="this.src='https://via.placeholder.com/150'">
-                            <div class="card-body">
-                                <h6 class="card-title">${variation.name}</h6>
-                                <p class="card-text small">${variation.description || ''}</p>
-                                <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-danger delete-variation" data-id="${variation.id}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    <button class="btn btn-outline-primary edit-variation" data-id="${variation.id}">
-                                        <i class="fas fa-pencil-alt"></i>
-                                    </button>
+
+                if(variations && variations.length > 0) {
+                    variations.forEach(variation => {
+                        const card = document.createElement('div');
+                        card.className = 'col-md-4 mb-3';
+                        card.innerHTML = `
+                            <div class="card h-100">
+                                <img src="${variation.image_url || 'https://via.placeholder.com/150'}" 
+                                     class="card-img-top" alt="${variation.name}"
+                                     onerror="this.src='https://via.placeholder.com/150'">
+                                <div class="card-body">
+                                    <h6 class="card-title">${variation.name}</h6>
+                                    <p class="card-text small">${variation.description || ''}</p>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-danger delete-variation" data-id="${variation.id}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                    variationsList.appendChild(card);
-                });
+                        `;
+                        variationsList.appendChild(card);
+                    });
+                } else {
+                    variationsList.innerHTML = '<p class="text-muted">Nenhuma variação encontrada.</p>';
+                }
 
                 // Add delete handlers
                 document.querySelectorAll('.delete-variation').forEach(deleteBtn => {
@@ -498,7 +502,7 @@ document.querySelectorAll('.view-variations-btn').forEach(button => {
             const variations = await response.json();
             const variationsList = document.getElementById('variationsList');
             variationsList.innerHTML = '';
-            
+
             variations.forEach(variation => {
                 const card = document.createElement('div');
                 card.className = 'col-md-4 mb-3';
@@ -516,7 +520,7 @@ document.querySelectorAll('.view-variations-btn').forEach(button => {
                 `;
                 variationsList.appendChild(card);
             });
-            
+
             // Add delete variation handlers
             document.querySelectorAll('.delete-variation').forEach(btn => {
                 btn.addEventListener('click', async function() {
