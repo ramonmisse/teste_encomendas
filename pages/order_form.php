@@ -100,9 +100,12 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
                         </select>
                     </div>
                     
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="modelSearch" placeholder="Buscar modelo...">
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3" id="modelGrid">
                         <?php foreach ($models as $model): ?>
-                            <div class="col">
+                            <div class="col model-item" data-model-name="<?php echo strtolower(htmlspecialchars($model['name'])); ?>">
                                 <div class="card model-card h-100 <?php echo ($isEditing && $order['model_id'] == $model['id']) ? 'selected' : ''; ?>" 
                                      data-model-id="<?php echo $model['id']; ?>">
                                     <div class="card-body p-2 text-center">
@@ -114,6 +117,13 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                    </div>
+                    
+                    <div class="mb-3 mt-3" id="variationSelect" style="display: none;">
+                        <label class="form-label required">Variação do Modelo</label>
+                        <select class="form-select" name="variation_id" required>
+                            <option value="">Selecione uma variação</option>
+                        </select>
                     </div>
                     <div class="invalid-feedback">Por favor, selecione um modelo.</div>
                 </div>
@@ -188,6 +198,23 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
 (function() {
     'use strict';
     
+    // Model search functionality
+    const modelSearch = document.getElementById('modelSearch');
+    const modelItems = document.querySelectorAll('.model-item');
+    
+    modelSearch.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        
+        modelItems.forEach(item => {
+            const modelName = item.dataset.modelName;
+            if (modelName.includes(searchTerm)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
     // Fetch all forms we want to apply validation to
     var forms = document.querySelectorAll('.needs-validation');
     
@@ -212,24 +239,28 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
             const variationSelect = document.getElementById('variationSelect');
             const variationSelectElement = variationSelect.querySelector('select');
             
-            try {
-                const response = await fetch(`actions/get_variations.php?model_id=${modelId}`);
-                const variations = await response.json();
-                
-                if(variations.length > 0) {
-                    variationSelectElement.innerHTML = '<option value="">Selecione uma variação</option>' +
-                    variations.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
-                    variationSelect.style.display = 'block'; variação</option>' +
-                        variations.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
-                    variationSelect.style.display = 'block';
-                } else {
+            // Load variations for selected model
+            fetch(`actions/get_variations.php?model_id=${modelId}`)
+                .then(response => response.json())
+                .then(variations => {
+                    const variationSelect = document.getElementById('variationSelect');
+                    const variationSelectElement = variationSelect.querySelector('select');
+                    
+                    if (variations.length > 0) {
+                        variationSelectElement.innerHTML = '<option value="">Selecione uma variação</option>' +
+                            variations.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+                        variationSelect.style.display = 'block';
+                        variationSelectElement.required = true;
+                    } else {
+                        variationSelect.style.display = 'none';
+                        variationSelectElement.required = false;
+                        variationSelectElement.innerHTML = '<option value="">Selecione uma variação</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     variationSelect.style.display = 'none';
-                    variationSelectElement.innerHTML = '<option value="">Selecione uma variação</option>';
-                }
-            } catch(error) {
-                console.error('Error:', error);
-                variationSelect.style.display = 'none';
-            }
+                });
         });
     });
     
