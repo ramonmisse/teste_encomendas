@@ -335,7 +335,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="variationForm" action="actions/add_variation.php" method="post" class="mb-4">
+                <form id="variationForm" class="mb-4">
                     <input type="hidden" name="model_id" id="variationModelId">
                     <div class="row">
                         <div class="col-md-6">
