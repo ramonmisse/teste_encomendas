@@ -342,6 +342,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                         <label for="variationName" class="form-label">Nome da Variação</label>
                         <input type="text" class="form-control" id="variationName" name="name" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="variationImageUrl" class="form-label">URL da Imagem</label>
+                        <input type="text" class="form-control" id="variationImageUrl" name="image_url">
+                    </div>
+                    <div class="mb-3">
+                        <label for="variationDescription" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="variationDescription" name="description" rows="3"></textarea>
+                    </div>
                     </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

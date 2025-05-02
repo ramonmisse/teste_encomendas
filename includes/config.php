@@ -87,6 +87,7 @@ try {
         `name` varchar(100) NOT NULL,
         `description` text DEFAULT NULL,
         `image_url` varchar(255) DEFAULT NULL,
+        `status` enum('active','inactive') NOT NULL DEFAULT 'active',
         `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`),
         KEY `model_id` (`model_id`),
