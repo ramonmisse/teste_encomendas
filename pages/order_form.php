@@ -218,6 +218,8 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
                 
                 if(variations.length > 0) {
                     variationSelectElement.innerHTML = '<option value="">Selecione uma variação</option>' +
+                    variations.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+                    variationSelect.style.display = 'block'; variação</option>' +
                         variations.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
                     variationSelect.style.display = 'block';
                 } else {
