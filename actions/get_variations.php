@@ -23,7 +23,7 @@ if(isset($_GET['model_id'])) {
         }
 
         // Get active variations
-        $stmt = $pdo->prepare("SELECT id, name, image_url, description, status FROM model_variations WHERE model_id = ? AND status = 'active' ORDER BY name");
+        $stmt = $pdo->prepare("SELECT id, name, image_url, description FROM model_variations WHERE model_id = ? ORDER BY name");
         $stmt->execute([$modelId]);
         $variations = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
