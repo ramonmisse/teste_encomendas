@@ -79,6 +79,19 @@ try {
         CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`sales_representative_id`) REFERENCES `sales_representatives` (`id`),
         CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`model_id`) REFERENCES `product_models` (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Create model_variations table
+    $pdo_setup->exec("CREATE TABLE IF NOT EXISTS `model_variations` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `model_id` int(11) NOT NULL,
+        `name` varchar(100) NOT NULL,
+        `description` text DEFAULT NULL,
+        `image_url` varchar(255) DEFAULT NULL,
+        `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`id`),
+        KEY `model_id` (`model_id`),
+        CONSTRAINT `model_variations_ibfk_1` FOREIGN KEY (`model_id`) REFERENCES `product_models` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     
 } catch(PDOException $e) {
     die("ERROR: Could not set up database. " . $e->getMessage());

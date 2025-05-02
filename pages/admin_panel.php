@@ -87,8 +87,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                                         <td class="fw-medium"><?php echo htmlspecialchars($model['name']); ?></td>
                                         <td><?php echo htmlspecialchars($model['description']); ?></td>
                                         <td class="text-end">
-                                            <div class="d-flex justify-content-end gap-1">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-icon edit-model-btn" 
+                                            <div class="d-flex justify-content-end gap-2">
+                                                <button class="btn btn-sm btn-outline-secondary add-variation-btn"
+                                                        data-id="<?php echo $model['id']; ?>"
+                                                        data-model-name="<?php echo htmlspecialchars($model['name']); ?>"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#addVariationModal">
+                                                    <i class="fas fa-layer-group"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-primary edit-model-btn" 
                                                         data-id="<?php echo $model['id']; ?>" 
                                                         data-name="<?php echo htmlspecialchars($model['name']); ?>" 
                                                         data-image-url="<?php echo htmlspecialchars($model['image_url']); ?>" 
@@ -319,6 +326,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     </div>
 </div>
 
+<!-- Add Variation Modal -->
+<div class="modal fade" id="addVariationModal" tabindex="-1" aria-labelledby="addVariationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addVariationModalLabel">Adicionar Variação</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="actions/add_variation.php" method="post">
+                <input type="hidden" name="model_id" id="variationModelId">
+                <div class="modal-body">
+                    <!-- Add variation fields here -->
+                    <div class="mb-3">
+                        <label for="variationName" class="form-label">Nome da Variação</label>
+                        <input type="text" class="form-control" id="variationName" name="name" required>
+                    </div>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Adicionar Variação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 // Script to handle modal data for editing models
 document.addEventListener('DOMContentLoaded', function() {
@@ -344,6 +377,15 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             document.getElementById('deleteModelId').value = id;
+        });
+    });
+
+    // Add variation button click
+    const addVariationBtns = document.querySelectorAll('.add-variation-btn');
+    addVariationBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modelId = this.getAttribute('data-id');
+            document.getElementById('variationModelId').value = modelId;
         });
     });
 });
