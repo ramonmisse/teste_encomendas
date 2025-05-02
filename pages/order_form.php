@@ -30,7 +30,7 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
                 Nenhum modelo de produto cadastrado. Por favor, <a href="index.php?page=home&tab=admin&admin_tab=models" class="alert-link">adicione um modelo</a> antes de criar um pedido.
             </div>
         <?php else: ?>
-            <form action="actions/save_order.php" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <form action="actions/save_order.php" method="post" enctype="multipart/form-data" class="needs-validation" novalidate autocomplete="off">
                 <?php if ($isEditing): ?>
                     <input type="hidden" name="id" value="<?php echo $order['id']; ?>">
                 <?php endif; ?>
@@ -234,6 +234,9 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
             // Set model ID in hidden input
             const modelId = this.getAttribute('data-model-id');
             modelInput.value = modelId;
+            // Remove validation error if present
+            modelInput.parentElement.classList.remove('was-validated');
+            modelInput.parentElement.querySelector('.invalid-feedback').style.display = 'none';
             
             // Load variations for selected model
             const variationSelect = document.getElementById('variationSelect');
@@ -272,7 +275,11 @@ $salesReps = $pdo->query("SELECT * FROM users WHERE role = 'user' ORDER BY usern
                 event.preventDefault();
                 event.stopPropagation();
                 // Show validation message
-                modelInput.parentElement.querySelector('.invalid-feedback').style.display = 'block';
+                const feedback = modelInput.parentElement.querySelector('.invalid-feedback');
+                if (feedback) {
+                    feedback.style.display = 'block';
+                }
+                return;
             }
             
             if (!form.checkValidity()) {
