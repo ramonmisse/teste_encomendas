@@ -92,14 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
                                                         data-id="<?php echo $model['id']; ?>"
                                                         data-model-name="<?php echo htmlspecialchars($model['name']); ?>"
                                                         data-bs-toggle="modal"
-                                                        data-bs-target="#addVariationModal">
+                                                        data-bs-target="#variationsModal">
                                                     <i class="fas fa-layer-group"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-info view-variations-btn"
-                                                    data-id="<?php echo $model['id']; ?>"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#viewVariationsModal">
-                                                <i class="fas fa-list"></i>
                                             </button>
                                                 <button type="button" class="btn btn-sm btn-outline-primary edit-model-btn" 
                                                         data-id="<?php echo $model['id']; ?>" 
@@ -332,36 +326,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     </div>
 </div>
 
-<!-- Add Variation Modal -->
-<div class="modal fade" id="addVariationModal" tabindex="-1" aria-labelledby="addVariationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Variations Modal -->
+<div class="modal fade" id="variationsModal" tabindex="-1" aria-labelledby="variationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addVariationModalLabel">Adicionar Variação</h5>
+                <h5 class="modal-title" id="variationsModalLabel">Gerenciar Variações</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="actions/add_variation.php" method="post">
-                <input type="hidden" name="model_id" id="variationModelId">
-                <div class="modal-body">
-                    <!-- Add variation fields here -->
-                    <div class="mb-3">
-                        <label for="variationName" class="form-label">Nome da Variação</label>
-                        <input type="text" class="form-control" id="variationName" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="variationImageUrl" class="form-label">URL da Imagem</label>
-                        <input type="text" class="form-control" id="variationImageUrl" name="image_url">
+            <div class="modal-body">
+                <form id="variationForm" action="actions/add_variation.php" method="post" class="mb-4">
+                    <input type="hidden" name="model_id" id="variationModelId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="variationName" class="form-label">Nome da Variação</label>
+                                <input type="text" class="form-control" id="variationName" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="variationImageUrl" class="form-label">URL da Imagem</label>
+                                <input type="text" class="form-control" id="variationImageUrl" name="image_url">
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="variationDescription" class="form-label">Descrição</label>
                         <textarea class="form-control" id="variationDescription" name="description" rows="3"></textarea>
                     </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Adicionar Variação</button>
                     </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Adicionar Variação</button>
+                </form>
+
+                <hr>
+
+                <div class="mt-4">
+                    <h6 class="mb-3">Variações Existentes</h6>
+                    <div id="variationsList" class="row">
+                        <!-- Variations will be loaded here -->
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -394,12 +401,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Add variation button click
-    const addVariationBtns = document.querySelectorAll('.add-variation-btn');
-    addVariationBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+    // Handle variations modal
+    const variationButtons = document.querySelectorAll('.add-variation-btn');
+    variationButtons.forEach(btn => {
+        btn.addEventListener('click', async function() {
             const modelId = this.getAttribute('data-id');
+            const modelName = this.getAttribute('data-model-name');
             document.getElementById('variationModelId').value = modelId;
+            document.getElementById('variationsModalLabel').textContent = `Gerenciar Variações - ${modelName}`;
+            
+            // Load existing variations
+            try {
+                const response = await fetch(`actions/get_variations.php?model_id=${modelId}`);
+                const variations = await response.json();
+                const variationsList = document.getElementById('variationsList');
+                variationsList.innerHTML = '';
+                
+                variations.forEach(variation => {
+                    const card = document.createElement('div');
+                    card.className = 'col-md-4 mb-3';
+                    card.innerHTML = `
+                        <div class="card h-100">
+                            <img src="${variation.image_url}" class="card-img-top" alt="${variation.name}"
+                                 onerror="this.src='https://via.placeholder.com/150'">
+                            <div class="card-body">
+                                <h6 class="card-title">${variation.name}</h6>
+                                <p class="card-text small">${variation.description || ''}</p>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-danger delete-variation" data-id="${variation.id}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-outline-primary edit-variation" data-id="${variation.id}">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    variationsList.appendChild(card);
+                });
+
+                // Add delete handlers
+                document.querySelectorAll('.delete-variation').forEach(deleteBtn => {
+                    deleteBtn.addEventListener('click', async function() {
+                        if(confirm('Tem certeza que deseja excluir esta variação?')) {
+                            const variationId = this.getAttribute('data-id');
+                            try {
+                                const response = await fetch('actions/delete_variation.php', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: `id=${variationId}`
+                                });
+                                if(response.ok) {
+                                    this.closest('.col-md-4').remove();
+                                }
+                            } catch(error) {
+                                console.error('Error:', error);
+                                alert('Erro ao excluir variação');
+                            }
+                        }
+                    });
+                });
+            } catch(error) {
+                console.error('Error:', error);
+                alert('Erro ao carregar variações');
+            }
         });
     });
 });
